@@ -34,6 +34,7 @@ python = "^3.10"
 click = "*"
 minilog = "*"
 nipype = "^1.8.6"
+templateflow = "^23.0.0"
 
 [tool.poetry.dev-dependencies]
 
