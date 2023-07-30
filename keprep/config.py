@@ -121,8 +121,10 @@ if not _fs_license and os.getenv("FREESURFER_HOME"):
 _templateflow_home = Path(
     os.getenv(
         "TEMPLATEFLOW_HOME",
-        os.path.join(os.getenv("HOME"), ".cache", "templateflow"),  # noqa: C0301
-    )  # type: ignore[arg-type]
+        os.path.join(
+            os.getenv("HOME"), ".cache", "templateflow"  # type: ignore[arg-type]
+        ),  # noqa: C0301
+    )
 )
 
 try:
@@ -411,7 +413,7 @@ class execution(_Config):
             cls.debug = list(DEBUG_MODES)
 
         if cls.output_dir is None:
-            cls.output_dir = Path(cls.qsiprep_dir).parent / "keprep"  # type: ignore[arg-type]
+            cls.output_dir = Path(cls.keprep_dir).parent / "keprep"  # type: ignore[arg-type]
         else:
             if Path(cls.output_dir).name != "keprep":
                 cls.output_dir = Path(cls.output_dir) / "keprep"
