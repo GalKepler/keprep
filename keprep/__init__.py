@@ -1,4 +1,4 @@
-# type: ignore[attr-defined]
+# mypy: disable-error-code="attr-defined"
 """Pre-processing for TheBase's dMRI data."""
 
 from importlib import metadata as importlib_metadata

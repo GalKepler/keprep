@@ -38,6 +38,7 @@ templateflow = "^23.0.0"
 psutil = "^5.9.5"
 niworkflows = "^1.8.1"
 pre-commit = "^3.3.3"
+pyupgrade = "^3.9.0"
 
 [tool.poetry.dev-dependencies]
 

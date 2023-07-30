@@ -56,6 +56,7 @@ The :py:mod:`config` is responsible for other conveniency actions.
 """
 import os
 from multiprocessing import set_start_method
+from typing import Tuple, Union
 
 # Disable NiPype etelemetry always
 _disable_et = bool(
@@ -85,8 +86,9 @@ finally:
 
     from keprep import __version__
 
+# Trick to avoid sklearn's FutureWarnings
 if not hasattr(sys, "_is_pytest_session"):
-    sys._is_pytest_session = False  # Trick to avoid sklearn's FutureWarnings
+    sys._is_pytest_session = False  # type: ignore[attr-defined]
 # Disable all warnings in main and children processes only on production versions
 
 logging.addLevelName(25, "IMPORTANT")  # Add a new level between INFO and WARNING
@@ -116,7 +118,7 @@ if not _fs_license and os.getenv("FREESURFER_HOME"):
 _templateflow_home = Path(
     os.getenv(
         "TEMPLATEFLOW_HOME",
-        os.path.join(os.getenv("HOME"), ".cache", "templateflow"),
+        os.path.join(os.getenv("HOME"), ".cache", "templateflow"),  # type: ignore[arg-type]
     )
 )
 
@@ -159,7 +161,7 @@ DEBUG_MODES = ""
 class _Config:
     """An abstract class forbidding instantiation."""
 
-    _paths = tuple()
+    _paths: tuple = tuple()
 
     def __init__(self):
         """Avert instantiation."""
@@ -179,7 +181,7 @@ class _Config:
 
         if init:
             try:
-                cls.init()
+                cls.init()  # type: ignore[attr-defined]
             except AttributeError:
                 pass
 
@@ -270,7 +272,7 @@ class nipype(_Config):
             "plugin_args": cls.plugin_args,
         }
         if cls.plugin in ("MultiProc", "LegacyMultiProc"):
-            out["plugin_args"]["n_procs"] = int(cls.nprocs)
+            out["plugin_args"]["n_procs"] = int(cls.nprocs)  # type: ignore[index, arg-type]
             if cls.memory_gb:
                 out["plugin_args"]["memory_gb"] = float(cls.memory_gb)
         return out
@@ -308,7 +310,7 @@ class nipype(_Config):
 
         if cls.omp_nthreads is None:
             cls.omp_nthreads = min(
-                cls.nprocs - 1 if cls.nprocs > 1 else os.cpu_count(), 8
+                cls.nprocs - 1 if cls.nprocs > 1 else os.cpu_count(), 8  # type: ignore[type-var, assignment, operator]
             )
 
 
@@ -321,7 +323,7 @@ class execution(_Config):
     """Path to the directory containing SQLite database indices for the input QSIPrep dataset."""
     reset_database = True
     """Reset the SQLite database."""
-    debug = []
+    debug: Union[str, list] = []
     """Debug mode(s)."""
     fs_license_file = _fs_license
     """An existing file containing a FreeSurfer license."""
@@ -386,7 +388,7 @@ class execution(_Config):
             cls.debug = list(DEBUG_MODES)
 
         if cls.output_dir is None:
-            cls.output_dir = Path(cls.qsiprep_dir).parent / "qsipost"
+            cls.output_dir = Path(cls.qsiprep_dir).parent / "qsipost"  # type: ignore[arg-type]
         else:
             if Path(cls.output_dir).name != "qsipost":
                 cls.output_dir = Path(cls.output_dir) / "qsipost"
@@ -561,7 +563,7 @@ def load(filename, skip=None, init=True):
     init : `bool` or :py:class:`~collections.abc.Container`
         Initialize all, none, or a subset of configurations.
     """
-    from toml import loads
+    from toml import loads  # type: ignore
 
     skip = skip or {}
 
