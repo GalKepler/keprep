@@ -1,5 +1,8 @@
+# pylint: skip-file
+
 r"""
 A Python module to maintain unique, run-wide *QSIPost* settings.
+
 This module implements the memory structures to keep a consistent, singleton config.
 Settings are passed across processes via filesystem, and a copy of the settings for
 each run and subject is left under
@@ -118,8 +121,8 @@ if not _fs_license and os.getenv("FREESURFER_HOME"):
 _templateflow_home = Path(
     os.getenv(
         "TEMPLATEFLOW_HOME",
-        os.path.join(os.getenv("HOME"), ".cache", "templateflow"),  # type: ignore[arg-type]
-    )
+        os.path.join(os.getenv("HOME"), ".cache", "templateflow"),  # noqa: C0301
+    )  # type: ignore[arg-type]
 )
 
 try:
@@ -249,7 +252,7 @@ class nipype(_Config):
     memory_gb = None
     """Estimation in GB of the RAM this workflow can allocate at any given time."""
     nprocs = os.cpu_count()
-    """Number of processes (compute tasks) that can be run in parallel (multiprocessing only)."""
+    """Number of processes (compute tasks) that can be run in parallel (multiprocessing only)."""  # noqa: C0301
     omp_nthreads = None
     """Number of CPUs a single process can access for multithreaded execution."""
     plugin = "MultiProc"

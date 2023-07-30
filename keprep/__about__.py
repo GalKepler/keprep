@@ -13,6 +13,4 @@ __credits__ = (
 )
 __url__ = "https://github.com/GalKepler/keprep"
 
-DOWNLOAD_URL = "https://github.com/GalKepler/keprep/{name}/archive/{ver}.tar.gz".format(
-    name=__packagename__, ver=__version__
-)
+DOWNLOAD_URL = f"https://github.com/GalKepler/keprep/{__packagename__}/archive/{__version__}.tar.gz"
