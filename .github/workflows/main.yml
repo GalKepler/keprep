@@ -36,7 +36,7 @@ jobs:
       - name: Test code
         run: make test
 
-      - name: Upload coverage
-        uses: codecov/codecov-action@v1
-        with:
-          fail_ci_if_error: false
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
