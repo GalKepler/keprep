@@ -6,6 +6,8 @@ from nipype.pipeline import engine as pe
 
 from keprep import config
 from keprep.interfaces.bids import get_fieldmap
+from keprep.workflows.dwi.stages.eddy import init_eddy_wf
+from keprep.workflows.dwi.stages.post_eddy import init_post_eddy_wf
 
 
 def init_dwi_preproc_wf(dwi_file: Union[str, Path]):
@@ -17,6 +19,7 @@ def init_dwi_preproc_wf(dwi_file: Union[str, Path]):
     dwi_file : Union[str,Path]
         path to DWI file
     """
+    from nipype.interfaces import mrtrix3 as mrt
     from niworkflows.interfaces.reportlets.registration import (
         SimpleBeforeAfterRPT as SimpleBeforeAfter,
     )
@@ -65,8 +68,96 @@ def init_dwi_preproc_wf(dwi_file: Union[str, Path]):
         ),
         name="outputnode",
     )
+    dwi_conversion_to_mif_node = pe.Node(
+        interface=mrt.MRConvert(
+            out_file="dwi.mif", nthreads=config.nipype.omp_nthreads
+        ),
+        name="dwi_mifconv",
+    )
+    fmap_conversion_to_mif_node = pe.Node(
+        interface=mrt.MRConvert(
+            out_file="fmap.mif", nthreads=config.nipype.omp_nthreads
+        ),
+        name="fmap_mifconv",
+    )
+    workflow.connect(
+        [
+            (
+                inputnode,
+                dwi_conversion_to_mif_node,
+                [
+                    ("dwi_file", "in_file"),
+                    ("dwi_bvec", "in_bvec"),
+                    ("dwi_bval", "in_bval"),
+                    ("dwi_json", "json_import"),
+                ],
+            ),
+            (
+                inputnode,
+                fmap_conversion_to_mif_node,
+                [
+                    ("fmap_file", "in_file"),
+                    ("fmap_json", "json_import"),
+                ],
+            ),
+        ]
+    )
 
-    return fieldmap
+    # Denoise DWI using MP-PCA
+    dwi_denoise_node = pe.Node(
+        interface=mrt.DWIDenoise(
+            out_file="dwi_denoised.mif",
+            noise="noise.mif",
+            nthreads=config.nipype.omp_nthreads,
+        ),
+        name="dwi_denoise",
+    )
+    workflow.connect(
+        [
+            (
+                dwi_conversion_to_mif_node,
+                dwi_denoise_node,
+                [("out_file", "in_file")],
+            ),
+        ]
+    )
+
+    eddy_wf = init_eddy_wf()
+    workflow.connect(
+        [
+            (inputnode, eddy_wf, [("dwi_json", "inputnode.dwi_json")]),
+            (
+                dwi_denoise_node,
+                eddy_wf,
+                [
+                    ("out_file", "inputnode.dwi_file"),
+                ],
+            ),
+            (
+                fmap_conversion_to_mif_node,
+                eddy_wf,
+                [
+                    ("out_file", "inputnode.fmap_file"),
+                ],
+            ),
+        ]
+    )
+
+    post_eddy = init_post_eddy_wf()
+
+    workflow.connect(
+        [
+            (
+                eddy_wf,
+                post_eddy,
+                [
+                    ("outputnode.dwi_preproc", "inputnode.dwi_preproc"),
+                ],
+            ),
+        ]
+    )
+
+    return workflow
 
 
 def _get_wf_name(filename):
