@@ -1,5 +1,5 @@
 # type: ignore[attr-defined]
-"""Post-processing for QSIPrep's outputs"""
+"""Pre-processing for TheBase's dMRI data."""
 
 from importlib import metadata as importlib_metadata
 
