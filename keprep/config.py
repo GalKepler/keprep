@@ -83,15 +83,13 @@ finally:
     from nipype import __version__ as _nipype_ver
     from templateflow import __version__ as _tf_ver
 
-    from . import __version__
+    from keprep import __version__
 
 if not hasattr(sys, "_is_pytest_session"):
     sys._is_pytest_session = False  # Trick to avoid sklearn's FutureWarnings
 # Disable all warnings in main and children processes only on production versions
 
-logging.addLevelName(
-    25, "IMPORTANT"
-)  # Add a new level between INFO and WARNING
+logging.addLevelName(25, "IMPORTANT")  # Add a new level between INFO and WARNING
 logging.addLevelName(15, "VERBOSE")  # Add a new level between INFO and DEBUG
 
 DEFAULT_MEMORY_MIN_GB = 0.01
@@ -209,6 +207,7 @@ class _Config:
 class environment(_Config):
     """
     Read-only options regarding the platform and environment.
+
     Crawls runtime descriptive settings (e.g., default FreeSurfer license,
     execution environment, nipype and *QSIPost* versions, etc.).
     The ``environment`` section is not loaded in from file,
@@ -378,8 +377,7 @@ class execution(_Config):
             cls._layout = QSIPREPLayout(
                 str(cls.qsiprep_dir),
                 database_path=_db_path,
-                reset_database=cls.reset_database
-                or (cls.qsiprep_database_dir is None),
+                reset_database=cls.reset_database or (cls.qsiprep_database_dir is None),
             )
             cls.qsiprep_database_dir = _db_path
         cls.layout = cls._layout
@@ -447,9 +445,7 @@ class workflow(_Config):
 class loggers:
     """Keep loggers easily accessible (see :py:func:`init`)."""
 
-    _fmt = (
-        "%(asctime)s,%(msecs)d %(name)-2s " "%(levelname)-2s:\n\t %(message)s"
-    )
+    _fmt = "%(asctime)s,%(msecs)d %(name)-2s " "%(levelname)-2s:\n\t %(message)s"
     _datefmt = "%y%m%d-%H:%M:%S"
 
     default = logging.getLogger()
@@ -474,9 +470,7 @@ class loggers:
         from nipype import config as ncfg
 
         _handler = logging.StreamHandler(stream=sys.stdout)
-        _handler.setFormatter(
-            logging.Formatter(fmt=cls._fmt, datefmt=cls._datefmt)
-        )
+        _handler.setFormatter(logging.Formatter(fmt=cls._fmt, datefmt=cls._datefmt))
         cls.cli.addHandler(_handler)
         cls.default.setLevel(execution.log_level)
         cls.cli.setLevel(execution.log_level)

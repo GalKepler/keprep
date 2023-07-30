@@ -3,12 +3,7 @@
 
 from importlib import metadata as importlib_metadata
 
-from keprep.__about__ import (
-    __copyright__,
-    __credits__,
-    __packagename__,
-    __version__,
-)
+from keprep.__about__ import __copyright__, __credits__, __packagename__, __version__
 
 
 def get_version() -> str:
