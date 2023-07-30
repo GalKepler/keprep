@@ -8,9 +8,12 @@ This project was generated with [cookiecutter](https://github.com/audreyr/cookie
 [![Windows Build Status](https://img.shields.io/appveyor/ci/GalKepler/keprep.svg?label=windows)](https://ci.appveyor.com/project/GalKepler/keprep)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/GalKepler/keprep)](https://codecov.io/gh/GalKepler/keprep)
 [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/GalKepler/keprep.svg)](https://scrutinizer-ci.com/g/GalKepler/keprep)
-[![PyPI License](https://img.shields.io/pypi/l/KePrep.svg)](https://pypi.org/project/KePrep)
-[![PyPI Version](https://img.shields.io/pypi/v/KePrep.svg)](https://pypi.org/project/KePrep)
-[![PyPI Downloads](https://img.shields.io/pypi/dm/KePrep.svg?color=orange)](https://pypistats.org/packages/KePrep)
+
+<!-- [![PyPI License](https://img.shields.io/pypi/l/KePrep.svg)](https://pypi.org/project/KePrep) -->
+
+<!-- [![PyPI Version](https://img.shields.io/pypi/v/KePrep.svg)](https://pypi.org/project/KePrep) -->
+
+<!-- [![PyPI Downloads](https://img.shields.io/pypi/dm/KePrep.svg?color=orange)](https://pypistats.org/packages/KePrep) -->
 
 ## Setup
 
