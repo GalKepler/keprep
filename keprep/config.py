@@ -478,6 +478,7 @@ class loggers:
     def init(cls):
         """
         Set the log level, initialize all loggers into :py:class:`loggers`.
+
             * Add new logger levels (25: IMPORTANT, and 15: VERBOSE).
             * Add a new sub-logger (``cli``).
             * Logger configuration.
@@ -503,7 +504,7 @@ class loggers:
 
 
 class seeds(_Config):
-    """Initialize the PRNG and track random seed assignments"""
+    """Initialize the PRNG and track random seed assignments."""
 
     _random_seed = None
     master = None
@@ -526,14 +527,14 @@ class seeds(_Config):
 
 
 def _set_ants_seed():
-    """Fix random seed for antsRegistration, antsAI, antsMotionCorr"""
+    """Fix random seed for antsRegistration, antsAI, antsMotionCorr."""
     val = random.randint(1, 65536)
     os.environ["ANTS_RANDOM_SEED"] = str(val)
     return val
 
 
 def _set_numpy_seed():
-    """NumPy's random seed is independent from Python's `random` module"""
+    """Numpy's random seed is independent from Python's `random` module."""
     import numpy as np
 
     val = random.randint(1, 65536)
@@ -542,7 +543,9 @@ def _set_numpy_seed():
 
 
 def from_dict(settings, init=True, ignore=None):
-    """Read settings from a flat dictionary.
+    """
+    Read settings from a flat dictionary.
+
     Arguments
     ---------
     setting : dict
@@ -566,7 +569,9 @@ def from_dict(settings, init=True, ignore=None):
 
 
 def load(filename, skip=None, init=True):
-    """Load settings from file.
+    """
+    Load settings from file.
+
     Arguments
     ---------
     filename : :py:class:`os.PathLike`
