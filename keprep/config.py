@@ -59,6 +59,8 @@ import os
 from multiprocessing import set_start_method
 from typing import Tuple, Union
 
+from bids import BIDSLayout
+
 # Disable NiPype etelemetry always
 _disable_et = bool(
     os.getenv("NO_ET") is not None or os.getenv("NIPYPE_NO_ET") is not None
@@ -318,10 +320,18 @@ class nipype(_Config):
 class execution(_Config):
     """Configure run-level settings."""
 
-    qsiprep_dir = None
-    """An existing path to the dataset, which must be an output of QSIPrep."""
-    qsiprep_database_dir = None
-    """Path to the directory containing SQLite database indices for the input QSIPrep dataset."""
+    anat_derivatives = None
+    """A path where anatomical derivatives are found to fast-track *sMRIPrep*."""
+    bids_dir = None
+    """An existing path to the dataset, which must be BIDS-compliant."""
+    bids_database_dir = None
+    """Path to the directory containing SQLite database indices for the input BIDS dataset."""
+    bids_description_hash = None
+    """Checksum (SHA256) of the ``dataset_description.json`` of the BIDS dataset."""
+    bids_filters = None
+    """A dictionary of BIDS selection filters."""
+    keprep_dir = None
+    """Root of KePrep BIDS Derivatives dataset. Depends on output_layout."""
     reset_database = True
     """Reset the SQLite database."""
     debug: Union[str, list] = []
@@ -352,8 +362,10 @@ class execution(_Config):
     _layout = None
 
     _paths = (
-        "qsiprep_dir",
-        "qsiprep_database_dir",
+        "anat_derivatives",
+        "bids_dir",
+        "bids_database_dir",
+        "keprep_dir",
         "fs_license_file",
         "fs_subjects_dir",
         "layout",
@@ -369,22 +381,32 @@ class execution(_Config):
             os.environ["FS_LICENSE"] = str(cls.fs_license_file)
 
         if cls._layout is None:
-            from keprep.bids.layout.layout import QSIPREPLayout
+            from bids import BIDSLayout
 
-            _db_path = cls.qsiprep_database_dir or (
+            _db_path = cls.bids_database_dir or (
                 cls.work_dir / cls.run_uuid / "bids_db"
             )
             _db_path.mkdir(exist_ok=True, parents=True)
 
             # Recommended after PyBIDS 12.1
-            cls._layout = QSIPREPLayout(
-                str(cls.qsiprep_dir),
+            cls._layout = BIDSLayout(
+                str(cls.bids_dir),
                 database_path=_db_path,
-                reset_database=cls.reset_database or (cls.qsiprep_database_dir is None),
+                reset_database=cls.reset_database or (cls.bids_database_dir is None),
             )
-            cls.qsiprep_database_dir = _db_path
+            cls.bids_database_dir = _db_path
         cls.layout = cls._layout
+        if cls.bids_filters:
+            from bids.layout import Query
 
+            # unserialize pybids Query enum values
+            for acq, filters in cls.bids_filters.items():
+                cls.bids_filters[acq] = {
+                    k: getattr(Query, v[7:-4])
+                    if not isinstance(v, Query) and "Query" in v
+                    else v
+                    for k, v in filters.items()
+                }
         if "all" in cls.debug:
             cls.debug = list(DEBUG_MODES)
 
@@ -411,38 +433,26 @@ class workflow(_Config):
 
     anat_only = False
     """Execute the anatomical preprocessing only."""
-    parcellation_atlas = "brainnetome"
-    """Parcellation atlas to use for the parcellation step."""
-    dipy_reconstruction_method = "NLLS"
-    """Reconstruction method to use for the estimation of tensor-derived parameters using dipy."""
-    do_tractography = True
-    """Whether to perform tractography."""
-    tractography_algorithm = "SD_Stream"
-    """
-    Tractography algorithm to use for the tractography step.
-    Must be one of ``FACT`, `iFOD1`, `iFOD2`, `Nulldist1`, `Nulldist2`, `SD_Stream`, `Seedtest`, `Tensor_Det`, `Tensor_Prob``.
-    """
-    stepscale = 0.5
-    """step size of the tractography algorithm in mm."""
-    lenscale_min = 30
-    """Set the minimum length of any track in mm."""
-    lenscale_max = 500
-    """Set the maximum length of any track in mm."""
-    angle = 45
-    """set the maximum angle in degrees between successive steps of tractography."""
-    n_tracts = 50000000
-    """Set the number of tracts to generate (before SIFT filtering)."""
-    do_sift_filtering = True
-    """Whether to perform SIFT filtering."""
-    sift_term_number = 500000
-    """Set the number of streamlines to keep after SIFT filtering."""
-    sift_term_ratio = 0.2
-    """
-    SIFT termination ratio - defined as the ratio between reduction in cost function, and reduction in density of streamlines.
-    Smaller values result in more streamlines being filtered out.
-    """
+    dwi2t1w_dof = None
+    """Degrees of freedom of the DWI-to-T1w registration steps."""
+    dwi2t1w_init = "register"
+    """Whether to use standard coregistration ('register') or to initialize coregistration from the
+    BOLD image-header ('header')."""
+    cifti_output = None
+    """Generate HCP Grayordinates, accepts either ``'91k'`` (default) or ``'170k'``."""
     do_reconall = False
     """Whether to perform FreeSurfer's recon-all."""
+    longitudinal = False
+    """Run FreeSurfer ``recon-all`` with the ``-logitudinal`` flag."""
+    run_reconall = True
+    """Run FreeSurfer's surface reconstruction."""
+    skull_strip_fixed_seed = False
+    """Fix a seed for skull-stripping."""
+    skull_strip_template = "OASIS30ANTs"
+    """Change default brain extraction template."""
+    spaces = None
+    """Keeps the :py:class:`~niworkflows.utils.spaces.SpatialReferences`
+    instance keeping standard and nonstandard spaces."""
 
 
 class loggers:
