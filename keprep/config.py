@@ -355,7 +355,7 @@ class execution(_Config):
     """Folder where derivatives will be stored."""
     run_uuid = f"{strftime('%Y%m%d-%H%M%S')}_{uuid4()}"
     """Unique identifier of this particular run."""
-    participant_label: list = None
+    participant_label: Union[list, None] = None
     """List of participant identifiers that are to be preprocessed."""
     work_dir = Path("work").absolute()
     """Path to a working directory where intermediate results will be available."""
@@ -423,7 +423,7 @@ class execution(_Config):
             if Path(cls.output_dir).name != "keprep":
                 cls.output_dir = Path(cls.output_dir) / "keprep"
         cls.output_dir.mkdir(exist_ok=True, parents=True)
-        cls.keprep_dir = Path(cls.keprep_dir)
+        cls.keprep_dir = Path(cls.keprep_dir)  # type: ignore[arg-type]
         if cls.participant_label is None:
             cls.participant_label = cls.layout.get_subjects()
         else:

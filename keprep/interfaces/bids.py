@@ -117,7 +117,7 @@ def collect_data(
     }
     bids_filters = bids_filters or {}
     for acq, entities in bids_filters.items():
-        queries[acq].update(entities)
+        queries[acq].update(entities)  # type: ignore[attr-defined]
         for entity in list(layout_get_kwargs.keys()):
             if entity in entities:
                 # avoid clobbering layout.get

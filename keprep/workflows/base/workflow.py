@@ -52,7 +52,7 @@ def init_keprep_wf():
             BIDSFreeSurferDir(
                 derivatives=config.execution.output_dir,
                 freesurfer_home=os.getenv("FREESURFER_HOME"),
-                spaces=config.workflow.spaces.get_fs_spaces(),
+                spaces=config.workflow.spaces.get_fs_spaces(),  # type: ignore[attr-defined]
                 minimum_fs_version="7.0.0",
             ),
             name=f"fsdir_run_{config.execution.run_uuid.replace('-', '_')}",
@@ -63,11 +63,13 @@ def init_keprep_wf():
 
     for (
         subject_id
-    ) in config.execution.participant_label:  # pylint: disable=not-an-iterable
+    ) in (
+        config.execution.participant_label  # type: ignore[union-attr]
+    ):  # pylint: disable=not-an-iterable
         single_subject_wf = init_single_subject_wf(subject_id)
 
         single_subject_wf.config["execution"]["crashdump_dir"] = str(
-            config.execution.keprep_dir
+            config.execution.keprep_dir  # type: ignore[operator]
             / f"sub-{subject_id}"
             / "log"
             / config.execution.run_uuid
@@ -86,7 +88,7 @@ def init_keprep_wf():
 
         # Dump a copy of the config file into the log directory
         log_dir = (
-            config.execution.keprep_dir
+            config.execution.keprep_dir  # type: ignore[operator]
             / f"sub-{subject_id}"
             / "log"
             / config.execution.run_uuid
