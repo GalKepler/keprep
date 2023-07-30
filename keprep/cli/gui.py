@@ -7,7 +7,7 @@ from tkinter.ttk import *  # type: ignore
 
 import log
 
-from . import utils
+from keprep.cli import utils
 
 
 class Application:

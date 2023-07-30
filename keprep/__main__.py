@@ -3,7 +3,7 @@
 """Package entry point."""
 
 
-from keprep.cli import main
+from keprep.cli.cli import main
 
 if __name__ == "__main__":  # pragma: no cover
     main()  # pylint: disable=no-value-for-parameter

@@ -5,7 +5,7 @@ import pytest
 from click.testing import CliRunner
 from expecter import expect
 
-from keprep.cli import main
+from keprep.cli.cli import main
 
 
 @pytest.fixture

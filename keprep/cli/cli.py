@@ -3,7 +3,7 @@
 import click
 import log
 
-from . import utils
+from keprep.cli import utils
 
 
 @click.command()
