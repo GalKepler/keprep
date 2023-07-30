@@ -77,6 +77,7 @@ except RuntimeError:
 finally:
     # Defer all custom import for after initializing the forkserver and
     # ignoring the most annoying warnings
+    import json
     import logging
     import random
     import sys
@@ -354,13 +355,15 @@ class execution(_Config):
     """Folder where derivatives will be stored."""
     run_uuid = f"{strftime('%Y%m%d-%H%M%S')}_{uuid4()}"
     """Unique identifier of this particular run."""
-    participant_label = None
+    participant_label: Union[list, None] = None
     """List of participant identifiers that are to be preprocessed."""
     work_dir = Path("work").absolute()
     """Path to a working directory where intermediate results will be available."""
     write_graph = False
     """Write out the computational graph corresponding to the planned preprocessing."""
-
+    output_spaces = None
+    """List of (non)standard spaces designated (with the ``--output-spaces`` flag of
+    the command line) as spatial references for outputs."""
     _layout = None
 
     _paths = (
@@ -399,6 +402,8 @@ class execution(_Config):
             cls.bids_database_dir = _db_path
         cls.layout = cls._layout
         if cls.bids_filters:
+            if isinstance(cls.bids_filters, str) or isinstance(cls.bids_filters, Path):
+                cls.bids_filters = json.loads(Path(cls.bids_filters).read_text())
             from bids.layout import Query
 
             # unserialize pybids Query enum values
@@ -417,6 +422,12 @@ class execution(_Config):
         else:
             if Path(cls.output_dir).name != "keprep":
                 cls.output_dir = Path(cls.output_dir) / "keprep"
+        cls.output_dir.mkdir(exist_ok=True, parents=True)
+        cls.keprep_dir = Path(cls.keprep_dir)  # type: ignore[arg-type]
+        if cls.participant_label is None:
+            cls.participant_label = cls.layout.get_subjects()
+        else:
+            cls.participant_label = list(cls.participant_label)
 
 
 # These variables are not necessary anymore
@@ -455,6 +466,11 @@ class workflow(_Config):
     spaces = None
     """Keeps the :py:class:`~niworkflows.utils.spaces.SpatialReferences`
     instance keeping standard and nonstandard spaces."""
+    hires = None
+    """Run FreeSurfer ``recon-all`` with the ``-hires`` flag."""
+    skull_strip_t1w = "force"
+    """Skip brain extraction of the T1w image (default is ``force``, meaning that
+    *KePrep* will run brain extraction of the T1w)."""
 
 
 class loggers:
@@ -596,6 +612,7 @@ def load(filename, skip=None, init=True):
             section = getattr(sys.modules[__name__], sectionname)
             ignore = skip.get(sectionname)
             section.load(configs, ignore=ignore, init=initialize(sectionname))
+    init_spaces()
 
 
 def get(flat=False):
@@ -628,3 +645,33 @@ def to_filename(filename):
     """Write settings to file."""
     filename = Path(filename)
     filename.write_text(dumps())
+
+
+def init_spaces(checkpoint=True):
+    """Initialize the :attr:`~workflow.spaces` setting."""
+    from niworkflows.utils.spaces import Reference, SpatialReferences
+
+    spaces = execution.output_spaces or SpatialReferences()
+    if not isinstance(spaces, SpatialReferences):
+        spaces = SpatialReferences(
+            [ref for s in spaces.split(" ") for ref in Reference.from_string(s)]
+        )
+
+    if checkpoint and not spaces.is_cached():
+        spaces.checkpoint()
+
+    # Add the default standard space if not already present (required by several sub-workflows)
+    if "MNI152NLin2009cAsym" not in spaces.get_spaces(nonstandard=False, dim=(3,)):
+        spaces.add(Reference("MNI152NLin2009cAsym", {}))
+
+    # Ensure user-defined spatial references for outputs are correctly parsed.
+    # Certain options require normalization to a space not explicitly defined by users.
+    # These spaces will not be included in the final outputs.
+    cifti_output = workflow.cifti_output
+    if cifti_output:
+        # CIFTI grayordinates to corresponding FSL-MNI resolutions.
+        vol_res = "2" if cifti_output == "91k" else "1"
+        spaces.add(Reference("MNI152NLin6Asym", {"res": vol_res}))
+
+    # Make the SpatialReferences object available
+    workflow.spaces = spaces
