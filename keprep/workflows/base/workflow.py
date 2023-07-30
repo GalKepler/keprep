@@ -61,12 +61,10 @@ def init_keprep_wf():
         if config.execution.fs_subjects_dir is not None:
             fsdir.inputs.subjects_dir = str(config.execution.fs_subjects_dir.absolute())
 
-    for (
-        subject_id
-    ) in (
-        config.execution.participant_label  # type: ignore[union-attr]
-    ):  # pylint: disable=not-an-iterable
-        single_subject_wf = init_single_subject_wf(subject_id)
+    for subject_id in list(
+        config.execution.participant_label
+    ):  # type: ignore[union-attr]  # pylint: disable=not-an-iterable
+        single_subject_wf = init_single_subject_wf(subject_id)  # type: ignore[operator]
 
         single_subject_wf.config["execution"]["crashdump_dir"] = str(
             config.execution.keprep_dir  # type: ignore[operator]
