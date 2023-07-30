@@ -48,3 +48,10 @@ coverage.xml
 
 # Eclipse
 .settings
+
+# Notebook files
+.ipynb_checkpoints/
+*.ipynb
+
+# tests and data
+data/
