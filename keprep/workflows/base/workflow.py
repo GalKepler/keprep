@@ -1,15 +1,12 @@
 import os
-import sys
 import warnings
 from copy import deepcopy
 
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
-from niworkflows.utils.connections import listify
 from packaging.version import Version
 
 from keprep import config
-from keprep.interfaces.bids import DerivativesDataSink
 from keprep.workflows.base.messages import (
     ANAT_DERIVATIVES_FAILED,
     BASE_POSTDESC,
@@ -38,8 +35,11 @@ def init_keprep_wf():
                 wf = init_fmriprep_wf()
 
     """
+    # pylint: disable=import-outside-toplevel
     from niworkflows.engine.workflows import LiterateWorkflow as Workflow
     from niworkflows.interfaces.bids import BIDSFreeSurferDir
+
+    # pylint: enable=import-outside-toplevel
 
     ver = Version(config.environment.version)
 
@@ -61,7 +61,9 @@ def init_keprep_wf():
         if config.execution.fs_subjects_dir is not None:
             fsdir.inputs.subjects_dir = str(config.execution.fs_subjects_dir.absolute())
 
-    for subject_id in config.execution.participant_label:
+    for (
+        subject_id
+    ) in config.execution.participant_label:  # pylint: disable=not-an-iterable
         single_subject_wf = init_single_subject_wf(subject_id)
 
         single_subject_wf.config["execution"]["crashdump_dir"] = str(
@@ -127,6 +129,7 @@ def init_single_subject_wf(subject_id: str):
         FreeSurfer's ``$SUBJECTS_DIR``.
 
     """
+    # pylint: disable=import-outside-toplevel,import-error
     from niworkflows.engine.workflows import LiterateWorkflow as Workflow
     from niworkflows.interfaces.bids import BIDSInfo
     from niworkflows.interfaces.nilearn import NILEARN_VERSION
@@ -134,6 +137,7 @@ def init_single_subject_wf(subject_id: str):
     from niworkflows.utils.spaces import Reference
     from smriprep.workflows.anatomical import init_anat_preproc_wf
 
+    # pylint: enable=import-outside-toplevel,import-error
     from keprep.interfaces.bids import BIDSDataGrabber, collect_data
 
     name = f"single_subject_{subject_id}_wf"
@@ -154,9 +158,11 @@ def init_single_subject_wf(subject_id: str):
         )
 
     if anat_derivatives:
-        from smriprep.utils.bids import collect_derivatives
+        from smriprep.utils.bids import (  # pylint: disable=import-outside-toplevel,import-error
+            collect_derivatives,
+        )
 
-        std_spaces = spaces.get_spaces(nonstandard=False, dim=(3,))
+        std_spaces = spaces.get_spaces(nonstandard=False, dim=(3,))  # noqa
         anat_derivatives = collect_derivatives(
             anat_derivatives.absolute(),
             subject_id,
@@ -174,7 +180,7 @@ def init_single_subject_wf(subject_id: str):
 
     if not anat_derivatives and not subject_data["t1w"]:
         raise FileNotFoundError(
-            f"No T1w images found for participant {subject_id}. All workflows require T1w images."
+            f"No T1w images found for participant {subject_id}. All workflows require T1w images."  # noqa
         )
 
     if subject_data["roi"]:
