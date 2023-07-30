@@ -1,21 +1,19 @@
-# pylint: skip-file
-
 r"""
-A Python module to maintain unique, run-wide *QSIPost* settings.
+A Python module to maintain unique, run-wide *KePrep* settings.
 
 This module implements the memory structures to keep a consistent, singleton config.
 Settings are passed across processes via filesystem, and a copy of the settings for
 each run and subject is left under
-``<output_dir>/sub-<participant_id>/log/<run_unique_id>/qsipost.toml``.
+``<output_dir>/sub-<participant_id>/log/<run_unique_id>/keprep.toml``.
 Settings are stored using :abbr:`ToML (Tom's Markup Language)`.
-The module has a :py:func:`~qsipost.config.to_filename` function to allow writing out
+The module has a :py:func:`~keprep.config.to_filename` function to allow writing out
 the settings to hard disk in *ToML* format, which looks like:
-.. literalinclude:: ../qsipost/data/tests/config.toml
+.. literalinclude:: ../keprep/data/tests/config.toml
    :language: toml
-   :name: qsipost.toml
-   :caption: **Example file representation of QSIPostrep settings**.
+   :name: keprep.toml
+   :caption: **Example file representation of KePrep settings**.
 This config file is used to pass the settings across processes,
-using the :py:func:`~qsipost.config.load` function.
+using the :py:func:`~keprep.config.load` function.
 Configuration sections
 ----------------------
 .. autoclass:: environment
@@ -31,8 +29,8 @@ Usage
 A config file is used to pass settings and collect information as the execution
 graph is built across processes.
 .. code-block:: Python
-    from qsipost import config
-    config_file = config.execution.work_dir / '.qsipost.toml'
+    from keprep import config
+    config_file = config.execution.work_dir / '.keprep.toml'
     config.to_filename(config_file)
     # Call build_workflow(config_file, retval) in a subprocess
     with Manager() as mgr:
@@ -68,7 +66,7 @@ _disable_et = bool(
 os.environ["NIPYPE_NO_ET"] = "1"
 os.environ["NO_ET"] = "1"
 
-CONFIG_FILENAME = "qsipost.toml"
+CONFIG_FILENAME = "keprep.toml"
 
 try:
     set_start_method("forkserver")
@@ -108,7 +106,7 @@ if os.getenv("IS_DOCKER_8395080871"):
     _cgroup = Path("/proc/1/cgroup")
     if _cgroup.exists() and "docker" in _cgroup.read_text():
         _docker_ver = os.getenv("DOCKER_VERSION_8395080871")
-        _exec_env = "qsipost-docker" if _docker_ver else "docker"
+        _exec_env = "keprep-docker" if _docker_ver else "docker"
     del _cgroup
 
 _fs_license = os.getenv("FS_LICENSE")
@@ -214,7 +212,7 @@ class environment(_Config):
     Read-only options regarding the platform and environment.
 
     Crawls runtime descriptive settings (e.g., default FreeSurfer license,
-    execution environment, nipype and *QSIPost* versions, etc.).
+    execution environment, nipype and *KePrep* versions, etc.).
     The ``environment`` section is not loaded in from file,
     only written out when settings are exported.
     This config section is useful when reporting issues,
@@ -239,7 +237,7 @@ class environment(_Config):
     templateflow_version = _tf_ver
     """The TemplateFlow client version installed."""
     version = __version__
-    """*QSIPost*'s version."""
+    """*KePrep*'s version."""
 
 
 class nipype(_Config):
@@ -333,7 +331,7 @@ class execution(_Config):
     fs_subjects_dir = None
     """FreeSurfer's subjects directory."""
     layout = None
-    """A :py:class:`~qsipost.bids.layout.QSIPrepLayout` object, see :py:func:`init`."""
+    """A :py:class:`~keprep.bids.layout.QSIPrepLayout` object, see :py:func:`init`."""
     log_dir = None
     """The path to a directory that contains execution logs."""
     log_level = 25
@@ -371,7 +369,7 @@ class execution(_Config):
             os.environ["FS_LICENSE"] = str(cls.fs_license_file)
 
         if cls._layout is None:
-            from qsipost.bids.layout.layout import QSIPREPLayout
+            from keprep.bids.layout.layout import QSIPREPLayout
 
             _db_path = cls.qsiprep_database_dir or (
                 cls.work_dir / cls.run_uuid / "bids_db"
@@ -391,10 +389,10 @@ class execution(_Config):
             cls.debug = list(DEBUG_MODES)
 
         if cls.output_dir is None:
-            cls.output_dir = Path(cls.qsiprep_dir).parent / "qsipost"  # type: ignore[arg-type]
+            cls.output_dir = Path(cls.qsiprep_dir).parent / "keprep"  # type: ignore[arg-type]
         else:
-            if Path(cls.output_dir).name != "qsipost":
-                cls.output_dir = Path(cls.output_dir) / "qsipost"
+            if Path(cls.output_dir).name != "keprep":
+                cls.output_dir = Path(cls.output_dir) / "keprep"
 
 
 # These variables are not necessary anymore
