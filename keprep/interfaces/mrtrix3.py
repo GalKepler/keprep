@@ -58,7 +58,7 @@ class MRConvertInputSpec(MRTrix3BaseInputSpec):
     )
     out_mrtrix_grad = File(
         exists=False,
-        argstr="-grad %s",
+        argstr="-export_grad_mrtrix %s",
         mandatory=False,
         desc="export the gradient table in MRtrix format",
     )

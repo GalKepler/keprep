@@ -12,6 +12,7 @@ from keprep.workflows.base.messages import (
     BASE_POSTDESC,
     BASE_WORKFLOW_DESCRIPTION,
 )
+from keprep.workflows.dwi.workflow import init_dwi_preproc_wf
 
 
 def init_keprep_wf():
@@ -30,9 +31,9 @@ def init_keprep_wf():
             :simple_form: yes
 
             from fmriprep.workflows.tests import mock_config
-            from fmriprep.workflows.base import init_fmriprep_wf
+            from fmriprep.workflows.base import init_keprep_wf
             with mock_config():
-                wf = init_fmriprep_wf()
+                wf = init_keprep_wf()
 
     """
     # pylint: disable=import-outside-toplevel
@@ -43,8 +44,8 @@ def init_keprep_wf():
 
     ver = Version(config.environment.version)
 
-    fmriprep_wf = Workflow(name=f"keprep_{ver.major}_{ver.minor}_wf")
-    fmriprep_wf.base_dir = config.execution.work_dir
+    keprep_wf = Workflow(name=f"keprep_{ver.major}_{ver.minor}_wf")
+    keprep_wf.base_dir = config.execution.work_dir
 
     freesurfer = config.workflow.run_reconall
     if freesurfer:
@@ -75,14 +76,14 @@ def init_keprep_wf():
         for node in single_subject_wf._get_all_nodes():
             node.config = deepcopy(single_subject_wf.config)
         if freesurfer:
-            fmriprep_wf.connect(
+            keprep_wf.connect(
                 fsdir,
                 "subjects_dir",
                 single_subject_wf,
                 "inputnode.subjects_dir",
             )
         else:
-            fmriprep_wf.add_nodes([single_subject_wf])
+            keprep_wf.add_nodes([single_subject_wf])
 
         # Dump a copy of the config file into the log directory
         log_dir = (
@@ -94,7 +95,7 @@ def init_keprep_wf():
         log_dir.mkdir(exist_ok=True, parents=True)
         config.to_filename(log_dir / "fmriprep.toml")
 
-    return fmriprep_wf
+    return keprep_wf
 
 
 def init_single_subject_wf(subject_id: str):
@@ -267,6 +268,20 @@ def init_single_subject_wf(subject_id: str):
     if anat_only:
         return workflow
 
+    for dwi_file in subject_data["dwi"]:
+        dwi_preproc_wf = init_dwi_preproc_wf(dwi_file)
+        workflow.connect(
+            [
+                (
+                    anat_preproc_wf,
+                    dwi_preproc_wf,
+                    [
+                        ("outputnode.t1w_preproc", "inputnode.t1w_preproc"),
+                        ("outputnode.t1w_mask", "inputnode.t1w_mask"),
+                    ],
+                )
+            ]
+        )
     return workflow
 
 

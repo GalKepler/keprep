@@ -48,17 +48,22 @@ def init_post_eddy_wf(name: str = "post_eddy_wf") -> pe.Workflow:
     )
 
     bias_correct = pe.Node(
-        mrt.DWIBiasCorrect(use_ants=True),
+        mrt.DWIBiasCorrect(
+            out_file="bias_corrected.mif",
+            use_ants=True,
+            nthreads=config.nipype.omp_nthreads,
+        ),
         name="bias_correct",
     )
 
     mrconvert_dwi = pe.Node(
         MRConvert(
-            out_filename="dwi.nii.gz",
+            out_file="dwi.nii.gz",
             out_mrtrix_grad="dwi.b",
             out_bval="dwi.bval",
             out_bvec="dwi.bvec",
             json_export="dwi.json",
+            nthreads=config.nipype.omp_nthreads,
         ),
         name="mrconvert_dwi",
     )
@@ -96,8 +101,9 @@ def init_post_eddy_wf(name: str = "post_eddy_wf") -> pe.Workflow:
     b0_extractor = init_extract_b0_wf()
     mrconvert_dwiref = pe.Node(
         MRConvert(
-            out_filename="dwi_reference.nii.gz",
+            out_file="dwi_reference.nii.gz",
             json_export="dwi_reference.json",
+            nthreads=config.nipype.omp_nthreads,
         ),
         name="mrconvert_dwiref",
     )

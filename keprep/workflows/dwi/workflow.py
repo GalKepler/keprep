@@ -6,6 +6,8 @@ from nipype.pipeline import engine as pe
 
 from keprep import config
 from keprep.interfaces.bids import get_fieldmap
+from keprep.workflows.dwi.stages.coregister import init_dwi_coregister_wf
+from keprep.workflows.dwi.stages.derivatives import init_derivatives_wf
 from keprep.workflows.dwi.stages.eddy import init_eddy_wf
 from keprep.workflows.dwi.stages.post_eddy import init_post_eddy_wf
 
@@ -152,6 +154,67 @@ def init_dwi_preproc_wf(dwi_file: Union[str, Path]):
                 post_eddy,
                 [
                     ("outputnode.dwi_preproc", "inputnode.dwi_preproc"),
+                ],
+            ),
+        ]
+    )
+
+    coreg_wf = init_dwi_coregister_wf()
+
+    workflow.connect(
+        [
+            (
+                post_eddy,
+                coreg_wf,
+                [
+                    ("outputnode.dwi_reference", "inputnode.dwi_reference"),
+                ],
+            ),
+            (
+                inputnode,
+                coreg_wf,
+                [
+                    ("t1w_preproc", "inputnode.t1w_preproc"),
+                    ("t1w_mask", "inputnode.t1w_mask"),
+                ],
+            ),
+        ]
+    )
+
+    ds_workflow = init_derivatives_wf()
+
+    workflow.connect(
+        [
+            (
+                inputnode,
+                ds_workflow,
+                [
+                    ("dwi_file", "inputnode.source_file"),
+                ],
+            ),
+            (
+                post_eddy,
+                ds_workflow,
+                [
+                    ("outputnode.dwi_preproc", "inputnode.dwi_preproc"),
+                    ("outputnode.dwi_grad", "inputnode.dwi_grad"),
+                    ("outputnode.dwi_bvec", "inputnode.dwi_bvec"),
+                    ("outputnode.dwi_bval", "inputnode.dwi_bval"),
+                    ("outputnode.dwi_json", "inputnode.dwi_json"),
+                    ("outputnode.dwi_reference", "inputnode.dwi_reference"),
+                    (
+                        "outputnode.dwi_reference_json",
+                        "inputnode.dwi_reference_json",
+                    ),
+                ],
+            ),
+            (
+                coreg_wf,
+                ds_workflow,
+                [
+                    ("outputnode.dwi_brain_mask", "inputnode.dwi_brain_mask"),
+                    ("outputnode.dwi2t1w_aff", "inputnode.dwi2t1w_aff"),
+                    ("outputnode.t1w2dwi_aff", "inputnode.t1w2dwi_aff"),
                 ],
             ),
         ]
