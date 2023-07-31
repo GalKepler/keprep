@@ -159,10 +159,34 @@ def init_dwi_preproc_wf(dwi_file: Union[str, Path]):
         ]
     )
 
+    sdc_report = pe.Node(
+        SimpleBeforeAfter(
+            before_label="Distorted",
+            after_label="Corrected",
+            dismiss_affine=True,
+        ),
+        name="sdc_report",
+        mem_gb=0.1,
+    )
+
     coreg_wf = init_dwi_coregister_wf()
 
     workflow.connect(
         [
+            (
+                eddy_wf,
+                sdc_report,
+                [
+                    ("outputnode.dwi_reference_distorted", "before"),
+                ],
+            ),
+            (
+                post_eddy,
+                sdc_report,
+                [
+                    ("outputnode.dwi_reference", "after"),
+                ],
+            ),
             (
                 post_eddy,
                 coreg_wf,
@@ -180,7 +204,33 @@ def init_dwi_preproc_wf(dwi_file: Union[str, Path]):
             ),
         ]
     )
-
+    coreg_report = pe.Node(
+        SimpleBeforeAfter(
+            before_label="T1w",
+            after_label="Dwi",
+            dismiss_affine=True,
+        ),
+        name="coreg_report",
+        mem_gb=0.1,
+    )
+    workflow.connect(
+        [
+            (
+                inputnode,
+                coreg_report,
+                [
+                    ("t1w_preproc", "before"),
+                ],
+            ),
+            (
+                coreg_wf,
+                coreg_report,
+                [
+                    ("outputnode.dwi_in_t1w", "after"),
+                ],
+            ),
+        ]
+    )
     ds_workflow = init_derivatives_wf()
 
     workflow.connect(
@@ -216,6 +266,16 @@ def init_dwi_preproc_wf(dwi_file: Union[str, Path]):
                     ("outputnode.dwi2t1w_aff", "inputnode.dwi2t1w_aff"),
                     ("outputnode.t1w2dwi_aff", "inputnode.t1w2dwi_aff"),
                 ],
+            ),
+            (
+                sdc_report,
+                ds_workflow,
+                [("out_report", "inputnode.sdc_report")],
+            ),
+            (
+                coreg_report,
+                ds_workflow,
+                [("out_report", "inputnode.coreg_report")],
             ),
         ]
     )

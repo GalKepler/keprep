@@ -40,6 +40,7 @@ def init_dwi_coregister_wf(name: str = "dwi_coregister_wf") -> pe.Workflow:
                 "t1w2dwi_aff",
                 "t1w_preproc_brain",
                 "dwi_brain_mask",
+                "dwi_in_t1w",
             ]
         ),
         name="outputnode",
@@ -98,6 +99,13 @@ def init_dwi_coregister_wf(name: str = "dwi_coregister_wf") -> pe.Workflow:
                 filrt_node,
                 [
                     ("dwi_reference", "in_file"),
+                ],
+            ),
+            (
+                filrt_node,
+                outputnode,
+                [
+                    ("out_file", "dwi_in_t1w"),
                 ],
             ),
             (

@@ -39,9 +39,32 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
                 "dwi2t1w_aff",
                 "t1w2dwi_aff",
                 "dwi_brain_mask",
+                "sdc_report",
+                "coreg_report",
             ]
         ),
         name="inputnode",
+    )
+
+    ds_sdc_report = pe.Node(
+        DerivativesDataSink(
+            base_directory=output_dir,
+            desc="sdc",
+            suffix="dwi",
+            datatype="figures",
+        ),
+        name="ds_report_sdc",
+        run_without_submitting=True,
+    )
+    ds_coreg_report = pe.Node(
+        DerivativesDataSink(
+            base_directory=output_dir,
+            desc="coreg",
+            suffix="dwi",
+            datatype="figures",
+        ),
+        name="ds_coreg_report",
+        run_without_submitting=True,
     )
 
     ds_dwi_preproc = pe.Node(
@@ -136,6 +159,16 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
 
     workflow.connect(
         [
+            (
+                inputnode,
+                ds_sdc_report,
+                [("sdc_report", "in_file"), ("source_file", "source_file")],
+            ),
+            (
+                inputnode,
+                ds_coreg_report,
+                [("coreg_report", "in_file"), ("source_file", "source_file")],
+            ),
             (
                 inputnode,
                 ds_dwi_preproc,

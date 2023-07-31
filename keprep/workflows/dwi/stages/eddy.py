@@ -34,7 +34,7 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
     )
 
     outputnode = pe.Node(
-        niu.IdentityInterface(fields=["dwi_preproc"]),
+        niu.IdentityInterface(fields=["dwi_preproc", "dwi_reference_distorted"]),
         name="outputnode",
     )
 
@@ -45,6 +45,11 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
 
     prep_pe_pair = pe.Node(mrt.MRCat(axis=3), name="prep_pe_pair")
 
+    convert_b0_to_nii = pe.Node(
+        mrt.MRConvert(out_file="b0.nii.gz"),
+        name="convert_b0_to_nii",
+    )
+
     workflow.connect(
         [
             (
@@ -52,6 +57,20 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
                 b0_extractor,
                 [
                     ("dwi_file", "inputnode.dwi_file"),
+                ],
+            ),
+            (
+                b0_extractor,
+                convert_b0_to_nii,
+                [
+                    ("outputnode.dwi_reference", "in_file"),
+                ],
+            ),
+            (
+                convert_b0_to_nii,
+                outputnode,
+                [
+                    ("out_file", "dwi_reference_distorted"),
                 ],
             ),
             (
