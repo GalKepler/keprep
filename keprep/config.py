@@ -446,7 +446,7 @@ class workflow(_Config):
 
     anat_only = False
     """Execute the anatomical preprocessing only."""
-    dwi2t1w_dof = None
+    dwi2t1w_dof = 6
     """Degrees of freedom of the DWI-to-T1w registration steps."""
     dwi2t1w_init = "register"
     """Whether to use standard coregistration ('register') or to initialize coregistration from the

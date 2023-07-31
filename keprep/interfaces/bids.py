@@ -1,5 +1,8 @@
 # emacs: -*- mode: python; py-indent-offset: 4; indent-tabs-mode: nil -*-
 # vi: set ft=python sts=4 ts=4 sw=4 et:
+from pathlib import Path
+from typing import Union
+
 from bids import BIDSLayout
 from bids.layout import Query
 from nipype import logging
@@ -12,6 +15,8 @@ from nipype.interfaces.base import (
     traits,
 )
 from niworkflows.interfaces.bids import DerivativesDataSink as _DDSink
+
+from keprep import config
 
 LOGGER = logging.getLogger("nipype.interface")
 
@@ -203,3 +208,47 @@ class BIDSDataGrabber(SimpleInterface):
                 )
 
         return runtime
+
+
+def get_fieldmap(file: Union[str, Path], layout: BIDSLayout) -> Path:
+    """
+    Locate a fieldmap file for a given image.
+
+    Parameters
+    ----------
+    file : Union[str,Path]
+        DWI image to find fieldmap for
+    layout : BIDSLayout
+        BIDSLayout object to search
+
+    Returns
+    -------
+    Path
+        Path to fieldmap file
+    """
+    file = Path(file)
+    fieldmaps = layout.get_fieldmap(file, return_list=True)
+    fieldmaps_to_remove = []
+    fieldmap_to_keep = None
+    for fieldmap in fieldmaps:
+        for key, value in fieldmap.items():
+            entities = layout.parse_file_entities(value)
+            for filter_key, filter_value in config.execution.bids_filters[
+                "fmap"
+            ].items():
+                if not entities.get(filter_key) == filter_value:
+                    fieldmaps_to_remove.append(fieldmap)
+                    break
+            break
+    for fieldmap in fieldmaps_to_remove:
+        fieldmaps.remove(fieldmap)
+    if len(fieldmaps) > 1:
+        LOGGER.warning(
+            "More than one fieldmap found for %s. Using %s",
+            file,
+            fieldmaps[0],
+        )
+    if fieldmaps:
+        fieldmap_to_keep = fieldmaps[0].get("epi")
+
+    return fieldmap_to_keep
