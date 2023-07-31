@@ -14,8 +14,7 @@ homepage = "https://pypi.org/project/KePrep"
 documentation = "https://KePrep.readthedocs.io"
 repository = "https://github.com/GalKepler/keprep"
 
-keywords = [
-]
+keywords = []
 classifiers = [
     # TODO: update this list to match your application: https://pypi.org/pypi?%3Aaction=list_classifiers
     "Development Status :: 1 - Planning",
@@ -28,7 +27,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 
-python = "^3.10"
+python = "^3.9"
 
 # TODO: Remove these and add your library's requirements
 click = "*"
@@ -47,14 +46,14 @@ sdcflows = "^2.5.1"
 
 # Formatters
 black = "^22.1"
-tomli = "*" # missing 'black' dependency
+tomli = "*"     # missing 'black' dependency
 isort = "^5.10"
 
 # Linters
 mypy = "^1.0"
 pydocstyle = "^6.1"
 pylint = "~2.15"
-wrapt = "*" # missing 'pylint' dependency
+wrapt = "*"         # missing 'pylint' dependency
 
 # Testing
 pytest = "^7.3"
