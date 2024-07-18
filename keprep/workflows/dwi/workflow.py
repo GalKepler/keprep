@@ -47,6 +47,8 @@ def init_dwi_preproc_wf(dwi_file: Union[str, Path], subject_data: dict):
                 "dwi_json",
                 # Fieldmap related
                 "fmap_file",
+                "fmap_bvec",
+                "fmap_bval",
                 "fmap_json",
                 # Anatomical
                 "t1w_preproc",
@@ -62,6 +64,8 @@ def init_dwi_preproc_wf(dwi_file: Union[str, Path], subject_data: dict):
     inputnode.inputs.dwi_json = Path(layout.get_nearest(dwi_file, extension="json"))
     # Set up fieldmap
     inputnode.inputs.fmap_file = Path(fieldmap)
+    inputnode.inputs.fmap_bvec = Path(layout.get_bvec(fieldmap))
+    inputnode.inputs.fmap_bval = Path(layout.get_bval(fieldmap))
     inputnode.inputs.fmap_json = Path(layout.get_nearest(fieldmap, extension="json"))
 
     outputnode = pe.Node(
@@ -99,6 +103,8 @@ def init_dwi_preproc_wf(dwi_file: Union[str, Path], subject_data: dict):
                 fmap_conversion_to_mif_node,
                 [
                     ("fmap_file", "in_file"),
+                    ("fmap_bvec", "in_bvec"),
+                    ("fmap_bval", "in_bval"),
                     ("fmap_json", "json_import"),
                 ],
             ),

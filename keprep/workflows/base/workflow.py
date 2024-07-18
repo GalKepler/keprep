@@ -47,7 +47,7 @@ def init_keprep_wf():
     keprep_wf = Workflow(name=f"keprep_{ver.major}_{ver.minor}_{ver.micro}_wf")
     keprep_wf.base_dir = config.execution.work_dir
 
-    freesurfer = config.workflow.run_reconall
+    freesurfer = config.workflow.do_reconall
     if freesurfer:
         fsdir = pe.Node(
             BIDSFreeSurferDir(
@@ -93,7 +93,7 @@ def init_keprep_wf():
             / config.execution.run_uuid
         )
         log_dir.mkdir(exist_ok=True, parents=True)
-        config.to_filename(log_dir / "fmriprep.toml")
+        config.to_filename(log_dir / "keprep.toml")
 
     return keprep_wf
 
@@ -168,14 +168,14 @@ def init_single_subject_wf(subject_id: str):
             anat_derivatives.absolute(),
             subject_id,
             std_spaces,
-            config.workflow.run_reconall,
+            config.workflow.do_reconall,
         )
         if anat_derivatives is None:
             warning_message = ANAT_DERIVATIVES_FAILED.format(
                 anat_derivatives=config.execution.anat_derivatives,
                 subject_id=subject_id,
                 spaces=", ".join(std_spaces),
-                run_reconall=config.workflow.run_reconall,
+                run_reconall=config.workflow.do_reconall,
             )
             config.loggers.workflow.warning(warning_message)
 
@@ -225,7 +225,7 @@ def init_single_subject_wf(subject_id: str):
         bids_root=str(config.execution.bids_dir),
         debug=config.execution.debug,
         existing_derivatives=anat_derivatives,
-        freesurfer=config.workflow.run_reconall,
+        freesurfer=config.workflow.do_reconall,
         longitudinal=config.workflow.longitudinal,
         omp_nthreads=config.nipype.omp_nthreads,
         output_dir=keprep_dir,

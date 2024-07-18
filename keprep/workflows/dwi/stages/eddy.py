@@ -120,7 +120,6 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
             rpe_options="pair",
             align_seepi=True,
             nthreads=config.nipype.omp_nthreads,
-            eddyqc_text="eddyqc.txt",
             eddyqc_all="eddyqc",
         ),
         name="dwifslpreproc",

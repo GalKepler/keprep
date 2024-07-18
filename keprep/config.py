@@ -334,8 +334,6 @@ class execution(_Config):
     """Checksum (SHA256) of the ``dataset_description.json`` of the BIDS dataset."""
     bids_filters = None
     """A dictionary of BIDS selection filters."""
-    keprep_dir = None
-    """Root of KePrep BIDS Derivatives dataset. Depends on output_layout."""
     reset_database = True
     """Reset the SQLite database."""
     debug: Union[str, list] = []
@@ -371,7 +369,6 @@ class execution(_Config):
         "anat_derivatives",
         "bids_dir",
         "bids_database_dir",
-        "keprep_dir",
         "fs_license_file",
         "fs_subjects_dir",
         "layout",
@@ -420,13 +417,10 @@ class execution(_Config):
         if "all" in cls.debug:
             cls.debug = list(DEBUG_MODES)
 
-        if cls.output_dir is None:
-            cls.output_dir = Path(cls.keprep_dir).parent / "keprep"  # type: ignore[arg-type]
-        else:
-            if Path(cls.output_dir).name != "keprep":
-                cls.output_dir = Path(cls.output_dir) / "keprep"
+        if Path(cls.output_dir).name != "keprep":
+            cls.output_dir = Path(cls.output_dir) / "keprep"
         cls.output_dir.mkdir(exist_ok=True, parents=True)
-        cls.keprep_dir = Path(cls.keprep_dir)  # type: ignore[arg-type]
+        cls.keprep_dir = Path(cls.output_dir)  # type: ignore[arg-type]
         if cls.participant_label is None:
             cls.participant_label = cls.layout.get_subjects()
         else:
@@ -460,8 +454,6 @@ class workflow(_Config):
     """Whether to perform FreeSurfer's recon-all."""
     longitudinal = False
     """Run FreeSurfer ``recon-all`` with the ``-logitudinal`` flag."""
-    run_reconall = True
-    """Run FreeSurfer's surface reconstruction."""
     skull_strip_fixed_seed = False
     """Fix a seed for skull-stripping."""
     skull_strip_template = "OASIS30ANTs"
