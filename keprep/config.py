@@ -55,6 +55,7 @@ The :py:mod:`config` is responsible for other conveniency actions.
     store/load processes (e.g., from/to :obj:`~pathlib.Path` \<-\> :obj:`str`,
     :py:class:`~bids.layout.BIDSLayout`, etc.)
 """
+
 import os
 from multiprocessing import set_start_method
 from typing import Tuple, Union
@@ -409,9 +410,11 @@ class execution(_Config):
             # unserialize pybids Query enum values
             for acq, filters in cls.bids_filters.items():
                 cls.bids_filters[acq] = {
-                    k: getattr(Query, v[7:-4])
-                    if not isinstance(v, Query) and "Query" in v
-                    else v
+                    k: (
+                        getattr(Query, v[7:-4])
+                        if not isinstance(v, Query) and "Query" in v
+                        else v
+                    )
                     for k, v in filters.items()
                 }
         if "all" in cls.debug:

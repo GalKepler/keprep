@@ -38,7 +38,8 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
         name="outputnode",
     )
 
-    b0_extractor = init_extract_b0_wf()
+    dwi_b0_extractor = init_extract_b0_wf(name="dwi_b0_extractor")
+    fmap_b0_extractor = init_extract_b0_wf(name="fmap_b0_extractor")
 
     # node to listify opposite phase encoding directions
     listify_b0 = pe.Node(niu.Merge(2), name="listify_b0")
@@ -54,13 +55,13 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
         [
             (
                 inputnode,
-                b0_extractor,
+                dwi_b0_extractor,
                 [
                     ("dwi_file", "inputnode.dwi_file"),
                 ],
             ),
             (
-                b0_extractor,
+                dwi_b0_extractor,
                 convert_b0_to_nii,
                 [
                     ("outputnode.dwi_reference", "in_file"),
@@ -74,7 +75,7 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
                 ],
             ),
             (
-                b0_extractor,
+                dwi_b0_extractor,
                 listify_b0,
                 [
                     ("outputnode.dwi_reference", "in1"),
@@ -82,9 +83,16 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
             ),
             (
                 inputnode,
+                fmap_b0_extractor,
+                [
+                    ("fmap_file", "inputnode.dwi_file"),
+                ],
+            ),
+            (
+                fmap_b0_extractor,
                 listify_b0,
                 [
-                    ("fmap_file", "in2"),
+                    ("outputnode.dwi_reference", "in2"),
                 ],
             ),
             (
@@ -112,7 +120,8 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
             rpe_options="pair",
             align_seepi=True,
             nthreads=config.nipype.omp_nthreads,
-            eddyqc_text="eddyqc",
+            eddyqc_text="eddyqc.txt",
+            eddyqc_all="eddyqc",
         ),
         name="dwifslpreproc",
     )

@@ -27,7 +27,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 
-python = "^3.9"
+python = "^3.10"
 
 # TODO: Remove these and add your library's requirements
 click = "*"
@@ -45,9 +45,9 @@ sdcflows = "^2.5.1"
 [tool.poetry.dev-dependencies]
 
 # Formatters
-black = "^22.1"
+black = "^24.4"
 tomli = "*"     # missing 'black' dependency
-isort = "^5.10"
+isort = "^5.13"
 
 # Linters
 mypy = "^1.0"

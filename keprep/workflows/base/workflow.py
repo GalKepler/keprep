@@ -44,7 +44,7 @@ def init_keprep_wf():
 
     ver = Version(config.environment.version)
 
-    keprep_wf = Workflow(name=f"keprep_{ver.major}_{ver.minor}_wf")
+    keprep_wf = Workflow(name=f"keprep_{ver.major}_{ver.minor}_{ver.micro}_wf")
     keprep_wf.base_dir = config.execution.work_dir
 
     freesurfer = config.workflow.run_reconall
@@ -269,7 +269,7 @@ def init_single_subject_wf(subject_id: str):
         return workflow
 
     for dwi_file in subject_data["dwi"]:
-        dwi_preproc_wf = init_dwi_preproc_wf(dwi_file)
+        dwi_preproc_wf = init_dwi_preproc_wf(dwi_file, subject_data)
         workflow.connect(
             [
                 (

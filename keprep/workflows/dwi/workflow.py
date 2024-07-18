@@ -12,7 +12,7 @@ from keprep.workflows.dwi.stages.eddy import init_eddy_wf
 from keprep.workflows.dwi.stages.post_eddy import init_post_eddy_wf
 
 
-def init_dwi_preproc_wf(dwi_file: Union[str, Path]):
+def init_dwi_preproc_wf(dwi_file: Union[str, Path], subject_data: dict):
     """
     Build the dwi preprocessing workflow.
 
@@ -30,7 +30,7 @@ def init_dwi_preproc_wf(dwi_file: Union[str, Path]):
     config.loggers.workflow.debug(
         "Creating DWI preprocessing workflow for <%s>" % dwi_file
     )
-    fieldmap = get_fieldmap(dwi_file, layout)
+    fieldmap = get_fieldmap(dwi_file=dwi_file, subject_data=subject_data)
     if not fieldmap:  # currently, fieldmap in necessary
         raise FileNotFoundError(f"No fieldmap found for <{dwi_file}>")
 

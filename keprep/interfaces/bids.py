@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Union
 
 from bids import BIDSLayout
-from bids.layout import Query
+from bids.layout import Query, parse_file_entities
 from nipype import logging
 from nipype.interfaces.base import (
     BaseInterfaceInputSpec,
@@ -105,8 +105,8 @@ def collect_data(
     }
 
     queries = {
-        "fmap": {"datatype": "fmap"},
-        "dwi": {"datatype": "dwi", "suffix": "dwi"},
+        "fmap": {"datatype": "dwi", "suffix": "dwi", "direction": "PA"},
+        "dwi": {"datatype": "dwi", "suffix": "dwi", "direction": "AP"},
         "sbref": {
             "datatype": "dwi",
             "suffix": "sbref",
@@ -210,45 +210,32 @@ class BIDSDataGrabber(SimpleInterface):
         return runtime
 
 
-def get_fieldmap(file: Union[str, Path], layout: BIDSLayout) -> Path:
+def get_fieldmap(dwi_file: Union[str, Path], subject_data: dict) -> str:
     """
-    Locate a fieldmap file for a given image.
+    Locate the fieldmap (dir-PA) associated with the dwi file of the session
 
     Parameters
     ----------
-    file : Union[str,Path]
-        DWI image to find fieldmap for
-    layout : BIDSLayout
-        BIDSLayout object to search
+    dwi_file : Union[str,Path]
+        path to DWI file
+    subject_data : dict
+        subject data
 
     Returns
     -------
-    Path
-        Path to fieldmap file
+    str
+        path to the fieldmap file
     """
-    file = Path(file)
-    fieldmaps = layout.get_fieldmap(file, return_list=True)
-    fieldmaps_to_remove = []
-    fieldmap_to_keep = None
-    for fieldmap in fieldmaps:
-        for key, value in fieldmap.items():
-            entities = layout.parse_file_entities(value)
-            for filter_key, filter_value in config.execution.bids_filters[
-                "fmap"
-            ].items():
-                if not entities.get(filter_key) == filter_value:
-                    fieldmaps_to_remove.append(fieldmap)
-                    break
-            break
-    for fieldmap in fieldmaps_to_remove:
-        fieldmaps.remove(fieldmap)
-    if len(fieldmaps) > 1:
-        LOGGER.warning(
-            "More than one fieldmap found for %s. Using %s",
-            file,
-            fieldmaps[0],
-        )
-    if fieldmaps:
-        fieldmap_to_keep = fieldmaps[0].get("epi")
-
-    return fieldmap_to_keep
+    dwi_entities = parse_file_entities(dwi_file)
+    dwi_dir = dwi_entities["direction"]
+    fmap_dir = dwi_dir[::-1]  # reverse the direction
+    avaliable_fmaps = subject_data.get("fmap")
+    if not avaliable_fmaps:
+        raise FileNotFoundError(f"No fieldmap found for <{dwi_file}>")
+    for fmap in avaliable_fmaps:
+        fmap_entities = parse_file_entities(fmap)
+        if (
+            fmap_entities["direction"] == fmap_dir
+            and fmap_entities["session"] == dwi_entities["session"]
+        ):
+            return fmap
