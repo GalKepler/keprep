@@ -110,3 +110,129 @@ class MRConvert(MRTrix3Base):
         if self.inputs.out_mrtrix_grad:
             outputs["out_mrtrix_grad"] = op.abspath(self.inputs.out_mrtrix_grad)
         return outputs
+
+
+class TckSiftInputSpec(MRTrix3BaseInputSpec):
+    in_file = File(
+        exists=True,
+        argstr="%s",
+        mandatory=True,
+        position=-3,
+        desc="input tractogram",
+    )
+    in_fod = File(
+        exists=True,
+        argstr="%s",
+        mandatory=True,
+        position=-2,
+        desc="input FOD image",
+    )
+    out_file = File(
+        "sift.tck",
+        argstr="%s",
+        mandatory=True,
+        position=-1,
+        usedefault=True,
+        desc="output sift tractogram",
+    )
+    act_file = File(
+        exists=True,
+        argstr="-act %s",
+        desc="ACT five-tissue-type segmentation image",
+    )
+    fd_scale_gm = traits.Bool(
+        default_value=True,
+        argstr="-fd_scale_gm",
+        desc="heuristically downsize the fibre density estimates based on the presence of GM in the voxel.",
+    )
+    no_dilate_lut = traits.Bool(
+        default_value=False,
+        argstr="-no_dilate_lut",
+        desc="do NOT dilate FOD lobe lookup tables.",
+    )
+    remove_untracked = traits.Bool(
+        default_value=False,
+        argstr="-remove_untracked",
+        desc="emove FOD lobes that do not have any streamline density attributed to them.",
+    )
+    fd_thresh = traits.Float(
+        argstr="-fd_thresh %f",
+        desc="fibre density threshold.",
+    )
+    out_csv = File(
+        exists=False,
+        argstr="-csv %s",
+        desc="output statistics of execution per iteration to a .csv file",
+    )
+    out_mu = File(
+        exists=False,
+        argstr="-out_mu %s",
+        desc="output the final value of SIFT proportionality coefficient mu to a text file",
+    )
+    output_debug = traits.Directory(
+        exists=False,
+        argstr="-output_debug %s",
+        desc="output debugging information to a directory",
+    )
+    out_selection = File(
+        exists=False,
+        argstr="-out_selection %s",
+        desc="output a text file containing the binary selection of streamlines",
+    )
+    term_number = traits.Int(
+        argstr="-term_number %d",
+        desc="continue filtering until this number of streamlines remain",
+    )
+    term_ratio = traits.Float(
+        argstr="-term_ratio %f",
+        desc="termination ratio; defined as the ratio between reduction in cost function, and reduction in density of streamlines",  # noqa
+    )
+    term_mu = traits.Float(
+        argstr="-term_mu %f",
+        desc="terminate filtering once the SIFT proportionality coefficient reaches a given value",
+    )
+
+
+class TckSiftOutputSpec(TraitedSpec):
+    out_file = File(exists=True, desc="output sift tractogram")
+    out_csv = File(exists=True, desc="output statistics of execution per iteration")
+    out_mu = File(
+        exists=True,
+        desc="output the final value of SIFT proportionality coefficient mu to a text file",
+    )
+    out_selection = File(
+        exists=True,
+        desc="output a text file containing the binary selection of streamlines",
+    )
+
+
+class TckSift(MRTrix3Base):
+    """
+    Select the streamlines from a tractogram that are most consistent with the
+    underlying FOD image.
+
+    Example
+    -------
+    >>> import nipype.interfaces.mrtrix3 as mrt
+    >>> sift = mrt.TCKSift()
+    >>> sift.inputs.in_file = 'tracks.tck'
+    >>> sift.inputs.in_fod = 'fod.mif'
+    >>> sift.cmdline
+    'tcksift tracks.tck fod.mif sift.tck'
+    >>> sift.run()  # doctest: +SKIP
+    """
+
+    _cmd = "tcksift"
+    input_spec = TckSiftInputSpec
+    output_spec = TckSiftOutputSpec
+
+    def _list_outputs(self):
+        outputs = self.output_spec().get()
+        outputs["out_file"] = op.abspath(self.inputs.out_file)
+        if self.inputs.out_csv:
+            outputs["out_csv"] = op.abspath(self.inputs.out_csv)
+        if self.inputs.out_mu:
+            outputs["out_mu"] = op.abspath(self.inputs.out_mu)
+        if self.inputs.out_selection:
+            outputs["out_selection"] = op.abspath(self.inputs.out_selection)
+        return outputs

@@ -474,7 +474,7 @@ class workflow(_Config):
     """Number of streamlines to generate in the tractography."""
     n_tracts = 40000
     """Number of streamlines to keep after filtering."""
-    tracking_algorithm = "iFOD2"
+    tracking_algorithm = "SD_Stream"
     """Algorithm to perform tractography."""
     tracking_max_angle = 45
     """Maximum angle between steps in the tractography."""
@@ -486,7 +486,12 @@ class workflow(_Config):
     """Step scale for the tractography."""
     tracking_minvol = 259209  # 59209 for theBase. 577275 for HCP
     """Minimum volume for the tractography."""
+    fs_scale_gm = True
+    """Heuristically downsize the fibre density estimates based on the presence of GM in the voxel."""
     five_tissue_type_algorithm = "hsvs"
+    """Algorithm to generate the five-tissue-type segmentation."""
+    debug_sift = False
+    """Enable debugging mode for SIFT."""
 
 
 class loggers:

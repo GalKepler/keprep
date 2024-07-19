@@ -1,7 +1,7 @@
 import nipype.pipeline.engine as pe
 from nipype.interfaces import mrtrix3 as mrt
 from nipype.interfaces import utility as niu
-
+from keprep.interfaces.mrtrix3 import TckSift
 from keprep import config
 from keprep.workflows.dwi.stages.coregister import init_5tt_coreg_wf
 
@@ -202,6 +202,20 @@ def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
         name="estimate_tractography_parameters",
     )
 
+    tcksift_node = pe.Node(
+        TckSift(
+            nthreads=config.nipype.omp_nthreads,
+            out_file="sift.tck",
+            out_csv="sift.csv",
+            out_mu="sift_mu.txt",
+            term_number=config.workflow.n_tracts,
+            fd_scale_gm=config.workflow.fs_scale_gm,
+        ),
+        name="tcksift",
+    )
+    if config.workflow.debug_sift:
+        tcksift_node.inputs.output_debug = "sift_debug"
+
     workflow.connect(
         [
             (
@@ -223,13 +237,42 @@ def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
             (
                 inputnode,
                 tractography,
-                [("dwi_mif", "in_file"), ("mask_file", "seed_image")],
+                [("mask_file", "seed_image")],
             ),
             (
                 coreg_5tt_wf,
                 tractography,
                 [
                     ("outputnode.5tt_coreg", "act_file"),
+                ],
+            ),
+            (
+                dwi2fod_node,
+                tractography,
+                [
+                    ("wm_odf", "in_file"),
+                ],
+            ),
+            (
+                dwi2fod_node,
+                tcksift_node,
+                [
+                    ("wm_odf", "in_fod"),
+                ],
+            ),
+            (coreg_5tt_wf, tcksift_node, [("outputnode.5tt_coreg", "act_file")]),
+            (
+                tractography,
+                tcksift_node,
+                [
+                    ("out_file", "in_file"),
+                ],
+            ),
+            (
+                tcksift_node,
+                outputnode,
+                [
+                    ("out_file", "tractography"),
                 ],
             ),
         ]
