@@ -32,7 +32,7 @@ $ pip install KePrep
 or add it to your [Poetry](https://poetry.eustace.io/) project:
 
 ```text
-$ poetry add KePrep
+$ poetry add keprep
 ```
 
 ## Usage

@@ -7,6 +7,7 @@ from nipype.pipeline import engine as pe
 from packaging.version import Version
 
 from keprep import config
+
 from keprep.workflows.base.messages import (
     ANAT_DERIVATIVES_FAILED,
     BASE_POSTDESC,
@@ -137,6 +138,7 @@ def init_single_subject_wf(subject_id: str):
     from niworkflows.utils.misc import fix_multi_T1w_source_name
     from niworkflows.utils.spaces import Reference
     from smriprep.workflows.anatomical import init_anat_preproc_wf
+    from keprep.workflows.anatomical.post_smriprep import init_post_anatomical_wf
 
     # pylint: enable=import-outside-toplevel,import-error
     from keprep.interfaces.bids import BIDSDataGrabber, collect_data
@@ -260,6 +262,22 @@ def init_single_subject_wf(subject_id: str):
         ])
     # fmt:on
 
+    post_smriprep_wf = init_post_anatomical_wf()
+    workflow.connect(
+        [
+            (
+                anat_preproc_wf,
+                post_smriprep_wf,
+                [
+                    ("outputnode.t1w_preproc", "inputnode.t1w_preproc"),
+                    ("outputnode.t1w_mask", "inputnode.t1w_mask"),
+                    ("outputnode.subjects_dir", "inputnode.fs_subjects_dir"),
+                    ("outputnode.subject_id", "inputnode.subject_id"),
+                ],
+            )
+        ]
+    )
+
     # Overwrite ``out_path_base`` of smriprep's DataSinks
     for node in workflow.list_node_names():
         if node.split(".")[-1].startswith("ds_"):
@@ -279,7 +297,12 @@ def init_single_subject_wf(subject_id: str):
                         ("outputnode.t1w_preproc", "inputnode.t1w_preproc"),
                         ("outputnode.t1w_mask", "inputnode.t1w_mask"),
                     ],
-                )
+                ),
+                (
+                    post_smriprep_wf,
+                    dwi_preproc_wf,
+                    [("outputnode.five_tissue_type", "inputnode.five_tissue_type")],
+                ),
             ]
         )
     return workflow

@@ -35,6 +35,7 @@ def init_post_eddy_wf(name: str = "post_eddy_wf") -> pe.Workflow:
     outputnode = pe.Node(
         niu.IdentityInterface(
             fields=[
+                "dwi_mif",
                 "dwi_preproc",
                 "dwi_grad",
                 "dwi_bvec",
@@ -82,6 +83,13 @@ def init_post_eddy_wf(name: str = "post_eddy_wf") -> pe.Workflow:
                 mrconvert_dwi,
                 [
                     ("out_file", "in_file"),
+                ],
+            ),
+            (
+                bias_correct,
+                outputnode,
+                [
+                    ("out_file", "dwi_mif"),
                 ],
             ),
             (
