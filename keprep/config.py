@@ -488,7 +488,7 @@ class workflow(_Config):
     """Minimum volume for the tractography."""
     fs_scale_gm = True
     """Heuristically downsize the fibre density estimates based on the presence of GM in the voxel."""
-    five_tissue_type_algorithm = "hsvs"
+    five_tissue_type_algorithm = "fsl"
     """Algorithm to generate the five-tissue-type segmentation."""
     debug_sift = False
     """Enable debugging mode for SIFT."""

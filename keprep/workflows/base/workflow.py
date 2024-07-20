@@ -270,6 +270,7 @@ def init_single_subject_wf(subject_id: str):
                 post_smriprep_wf,
                 [
                     ("outputnode.t1w_preproc", "inputnode.t1w_preproc"),
+                    ("outputnode.t2w_preproc", "inputnode.t2w_preproc"),
                     ("outputnode.t1w_mask", "inputnode.t1w_mask"),
                     ("outputnode.subjects_dir", "inputnode.fs_subjects_dir"),
                     ("outputnode.subject_id", "inputnode.subject_id"),

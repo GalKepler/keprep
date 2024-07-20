@@ -45,6 +45,7 @@ def init_post_anatomical_wf(name: str = "post_anatomical_wf") -> pe.Workflow:
         niu.IdentityInterface(
             fields=[
                 "t1w_preproc",
+                "t2w_preproc",
                 "t1w_mask",
                 "fs_subjects_dir",
                 "subject_id",
@@ -69,7 +70,13 @@ def init_post_anatomical_wf(name: str = "post_anatomical_wf") -> pe.Workflow:
     if algo_5tt == "fsl":
         wf.connect(
             [
-                (inputnode, five_tissue_type, [("t1w_preproc", "in_file")]),
+                (
+                    inputnode,
+                    five_tissue_type,
+                    [
+                        ("t1w_preproc", "in_file"),
+                    ],
+                ),
             ]
         )
     elif algo_5tt == "hsvs":
@@ -92,8 +99,8 @@ def init_post_anatomical_wf(name: str = "post_anatomical_wf") -> pe.Workflow:
                     ],
                 ),
                 (fs_subject_dir, five_tissue_type, [("fs_subject_dir", "in_file")]),
-                (five_tissue_type, outputnode, [("out_file", "five_tissue_type")]),
             ]
         )
 
+    wf.connect([(five_tissue_type, outputnode, [("out_file", "five_tissue_type")])])
     return wf
