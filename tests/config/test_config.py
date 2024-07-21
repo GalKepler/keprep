@@ -7,6 +7,13 @@ import pytest
 
 from keprep import config
 
+_fs_license = os.getenv("FS_LICENSE")
+if not _fs_license and os.getenv("FREESURFER_HOME"):
+    _fs_home = os.getenv("FREESURFER_HOME")
+    if _fs_home and (Path(_fs_home) / "license.txt").is_file():
+        _fs_license = str(Path(_fs_home) / "license.txt")
+    del _fs_home
+
 
 @pytest.fixture
 def temp_dir():
@@ -38,7 +45,10 @@ def test_execution_config():
     assert config.execution.bids_dir is None
     assert config.execution.bids_database_dir is None
     assert config.execution.debug == []
-    assert config.execution.fs_license_file is not None
+    if _fs_license is not None:
+        assert config.execution.fs_license_file is not None
+    else:
+        assert config.execution.fs_license_file is None
     assert config.execution.work_dir == Path("work").absolute()
 
 
