@@ -105,29 +105,6 @@ def test_init_spaces():
     )
 
 
-@pytest.fixture(autouse=True)
-def setup_and_teardown():
-    yield
-    # Reset configuration to defaults after each test
-    default_settings = {
-        "execution": {
-            "bids_dir": None,
-            "work_dir": Path("work").absolute(),
-        },
-        "nipype": {
-            "nprocs": os.cpu_count(),
-            "plugin": "MultiProc",
-            "plugin_args": {
-                "maxtasksperchild": 1,
-                "raise_insufficient": False,
-            },
-        },
-        "workflow": {},
-        "seeds": {},
-    }
-    config.from_dict(default_settings, init=True)
-
-
 def test_logging_levels():
     assert logging.getLevelName(25) == "IMPORTANT"
     assert logging.getLevelName(15) == "VERBOSE"
