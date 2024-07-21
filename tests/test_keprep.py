@@ -5,9 +5,6 @@
 import pytest
 
 
-from keprep import keprep
-
-
 @pytest.fixture
 def response():
     """Sample pytest fixture.

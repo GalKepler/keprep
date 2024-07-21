@@ -1,5 +1,4 @@
 """Console script for keprep."""
-import keprep
 
 import typer
 from rich.console import Console
@@ -11,10 +10,8 @@ console = Console()
 @app.command()
 def main():
     """Console script for keprep."""
-    console.print("Replace this message by putting your code into "
-               "keprep.cli.main")
+    console.print("Replace this message by putting your code into " "keprep.cli.main")
     console.print("See Typer documentation at https://typer.tiangolo.com/")
-    
 
 
 if __name__ == "__main__":
