@@ -1,0 +1,6 @@
+# .coveragerc
+[run]
+omit =
+    tests/*
+    src/yalab_procedures/procedures/dicom_to_bids/templates/*
+    src/yalab_procedures/procedures/mrtrix_preprocessing/*
