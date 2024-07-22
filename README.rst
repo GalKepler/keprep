@@ -14,7 +14,7 @@ Overview
     * - docs
       - |docs|
     * - tests, CI & coverage
-      - |github-actions| |codecov| |codacy| |codeclimate|
+      - |github-actions| |codecov| |codacy| |codeclimate-maintainability| |codeclimate-testcoverage|
     * - version
       - |pypi| |python|
     * - styling
@@ -38,12 +38,16 @@ Overview
     :target: https://app.codacy.com/gh/GalKepler/keprep/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade
     :alt: Code Quality
 
-.. |codeclimate| image:: https://api.codeclimate.com/v1/badges/dc78868ecc19deb5fb5b/maintainability
+.. |codeclimate-maintainability| image:: https://api.codeclimate.com/v1/badges/dc78868ecc19deb5fb5b/maintainability
     :target: https://codeclimate.com/github/GalKepler/keprep/maintainability
     :alt: Maintainability
 
-.. |pypi| image:: https://img.shields.io/pypi/v/yalab-procedures.svg
-        :target: https://pypi.python.org/pypi/yalab-procedures
+.. |codeclimate-testcoverage| image:: https://api.codeclimate.com/v1/badges/dc78868ecc19deb5fb5b/test_coverage
+    https://codeclimate.com/github/GalKepler/keprep/test_coverage
+    :alt: Test Coverage
+
+.. |pypi| image:: https://img.shields.io/pypi/v/keprep.svg
+        :target: https://pypi.python.org/pypi/keprep
 
 .. |python| image:: https://img.shields.io/pypi/pyversions/keprep
         :target: https://www.python.org
