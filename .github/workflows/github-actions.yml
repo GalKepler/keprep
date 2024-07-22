@@ -89,6 +89,14 @@ jobs:
           echo "Checking coverage file:"
           cat reports/coverage.xml
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4.2.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: reports/coverage.xml
+          name: codecov-umbrella
+          fail_ci_if_error: true
+
       - name: Prepare Code Climate Test Reporter
         run: |
           codeclimate-test-reporter before-build
