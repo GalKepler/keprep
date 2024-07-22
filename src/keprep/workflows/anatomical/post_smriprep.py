@@ -1,8 +1,8 @@
 import nipype.pipeline.engine as pe
-from nipype.interfaces import mrtrix3 as mrt
 from nipype.interfaces import utility as niu
 
 from keprep import config
+from keprep.interfaces import mrtrix3 as mrt
 
 
 def locate_fs_subject_dir(subject_id: str, fs_subjects_dir: str) -> str:

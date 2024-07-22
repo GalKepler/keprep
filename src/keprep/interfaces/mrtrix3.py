@@ -111,6 +111,55 @@ class MRConvert(MRTrix3Base):  # pylint: disable=abstract-method
         return outputs
 
 
+class Generate5ttInputSpec(MRTrix3BaseInputSpec):
+    algorithm = traits.Enum(
+        "fsl",
+        "gif",
+        "freesurfer",
+        "hsvs",
+        argstr="%s",
+        position=-3,
+        mandatory=True,
+        desc="tissue segmentation algorithm",
+    )
+    in_file = File(
+        exists=True, argstr="%s", mandatory=True, position=-2, desc="input image"
+    )
+    out_file = File(argstr="%s", mandatory=True, position=-1, desc="output image")
+
+
+class Generate5ttOutputSpec(TraitedSpec):
+    out_file = File(exists=True, desc="output image")
+
+
+class Generate5tt(MRTrix3Base):
+    """
+    Generate a 5TT image suitable for ACT using the selected algorithm
+
+
+    Example
+    -------
+
+    >>> import nipype.interfaces.mrtrix3 as mrt
+    >>> gen5tt = mrt.Generate5tt()
+    >>> gen5tt.inputs.in_file = 'T1.nii.gz'
+    >>> gen5tt.inputs.algorithm = 'fsl'
+    >>> gen5tt.inputs.out_file = '5tt.mif'
+    >>> gen5tt.cmdline                             # doctest: +ELLIPSIS
+    '5ttgen fsl T1.nii.gz 5tt.mif'
+    >>> gen5tt.run()                               # doctest: +SKIP
+    """
+
+    _cmd = "5ttgen"
+    input_spec = Generate5ttInputSpec
+    output_spec = Generate5ttOutputSpec
+
+    def _list_outputs(self):
+        outputs = self.output_spec().get()
+        outputs["out_file"] = op.abspath(self.inputs.out_file)
+        return outputs
+
+
 class TckSiftInputSpec(MRTrix3BaseInputSpec):
     in_file = File(
         exists=True,
