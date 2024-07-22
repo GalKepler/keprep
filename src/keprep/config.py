@@ -254,7 +254,7 @@ class nipype(_Config):
     memory_gb = None
     """Estimation in GB of the RAM this workflow can allocate at any given time."""
     nprocs = os.cpu_count()
-    """Number of processes (compute tasks) that can be run in parallel (multiprocessing only)."""  # noqa: C0301
+    """Number of processes (compute tasks) that can be run in parallel (multiprocessing only)."""  # noqa: C0301, E501
     omp_nthreads = None
     """Number of CPUs a single process can access for multithreaded execution."""
     plugin = "MultiProc"
@@ -277,9 +277,9 @@ class nipype(_Config):
             "plugin_args": cls.plugin_args,
         }
         if cls.plugin in ("MultiProc", "LegacyMultiProc"):
-            out["plugin_args"]["n_procs"] = int(cls.nprocs)  # type: ignore[index, arg-type]
+            out["plugin_args"]["n_procs"] = int(cls.nprocs)  # type: ignore[index, arg-type] # noqa: E501
             if cls.memory_gb:
-                out["plugin_args"]["memory_gb"] = float(cls.memory_gb)  # type: ignore[unreachable]
+                out["plugin_args"]["memory_gb"] = float(cls.memory_gb)  # type: ignore[unreachable] # noqa: E501
         return out
 
     @classmethod
@@ -315,7 +315,7 @@ class nipype(_Config):
 
         if cls.omp_nthreads is None:
             cls.omp_nthreads = min(
-                cls.nprocs - 1 if cls.nprocs > 1 else os.cpu_count(), 8  # type: ignore[type-var, assignment, operator]
+                cls.nprocs - 1 if cls.nprocs > 1 else os.cpu_count(), 8  # type: ignore[type-var, assignment, operator] # noqa: E501
             )
 
 
@@ -327,7 +327,7 @@ class execution(_Config):
     bids_dir = None
     """An existing path to the dataset, which must be BIDS-compliant."""
     bids_database_dir = None
-    """Path to the directory containing SQLite database indices for the input BIDS dataset."""
+    """Path to the directory containing SQLite database indices for the input BIDS dataset."""  # noqa: E501
     bids_description_hash = None
     """Checksum (SHA256) of the ``dataset_description.json`` of the BIDS dataset."""
     bids_filters = None
@@ -398,7 +398,7 @@ class execution(_Config):
             cls.bids_database_dir = _db_path
         cls.layout = cls._layout
         if cls.bids_filters:
-            if isinstance(cls.bids_filters, str) or isinstance(cls.bids_filters, Path):  # type: ignore[unreachable]
+            if isinstance(cls.bids_filters, str) or isinstance(cls.bids_filters, Path):  # type: ignore[unreachable] # noqa: E501
                 cls.bids_filters = json.loads(Path(cls.bids_filters).read_text())
             from bids.layout import Query
 
@@ -445,8 +445,7 @@ class workflow(_Config):
     dwi2t1w_dof = 6
     """Degrees of freedom of the DWI-to-T1w registration steps."""
     dwi2t1w_init = "register"
-    """Whether to use standard coregistration ('register') or to initialize coregistration from the
-    BOLD image-header ('header')."""
+    """Whether to use standard coregistration ('register') or to initialize coregistration from the BOLD image-header ('header')."""  # noqa: E501
     cifti_output = None
     """Generate HCP Grayordinates, accepts either ``'91k'`` (default) or ``'170k'``."""
     do_reconall = False
@@ -486,7 +485,7 @@ class workflow(_Config):
     tracking_minvol = 259209  # 59209 for theBase. 577275 for HCP
     """Minimum volume for the tractography."""
     fs_scale_gm = True
-    """Heuristically downsize the fibre density estimates based on the presence of GM in the voxel."""
+    """Heuristically downsize the fibre density estimates based on the presence of GM in the voxel."""  # noqa: E501
     five_tissue_type_algorithm = "fsl"
     """Algorithm to generate the five-tissue-type segmentation."""
     debug_sift = False
@@ -680,7 +679,7 @@ def init_spaces(checkpoint=True):
     if checkpoint and not spaces.is_cached():
         spaces.checkpoint()
 
-    # Add the default standard space if not already present (required by several sub-workflows)
+    # Add the default standard space if not already present (required by several sub-workflows) # noqa: E501
     if "MNI152NLin2009cAsym" not in spaces.get_spaces(nonstandard=False, dim=(3,)):
         spaces.add(Reference("MNI152NLin2009cAsym", {}))
 

@@ -54,16 +54,16 @@ def init_keprep_wf():
             BIDSFreeSurferDir(
                 derivatives=config.execution.output_dir,
                 freesurfer_home=os.getenv("FREESURFER_HOME"),
-                spaces=config.workflow.spaces.get_fs_spaces(),  # type: ignore[attr-defined]
+                spaces=config.workflow.spaces.get_fs_spaces(),  # type: ignore[attr-defined] # noqa E501
                 minimum_fs_version="7.0.0",
             ),
             name=f"fsdir_run_{config.execution.run_uuid.replace('-', '_')}",
             run_without_submitting=True,
         )
         if config.execution.fs_subjects_dir is not None:
-            fsdir.inputs.subjects_dir = str(config.execution.fs_subjects_dir.absolute())  # type: ignore[unreachable]
+            fsdir.inputs.subjects_dir = str(config.execution.fs_subjects_dir.absolute())  # type: ignore[unreachable] # noqa E501
 
-    participants: list = config.execution.participant_label  # type: ignore[assignment]  # pylint: disable=not-an-iterable
+    participants: list = config.execution.participant_label  # type: ignore[assignment]  # pylint: disable=not-an-iterable # noqa E501
     for subject_id in list(participants):
         single_subject_wf = init_single_subject_wf(subject_id)  # type: ignore[operator]
 
@@ -160,7 +160,7 @@ def init_single_subject_wf(subject_id: str):
         )
 
     if anat_derivatives:
-        from smriprep.utils.bids import (  # type: ignore[unreachable] # pylint: disable=import-outside-toplevel,import-error
+        from smriprep.utils.bids import (  # type: ignore[unreachable] # pylint: disable=import-outside-toplevel,import-error # noqa E501
             collect_derivatives,
         )
 
@@ -256,7 +256,7 @@ def init_single_subject_wf(subject_id: str):
             (bidssrc, bids_info, [(('t1w', fix_multi_T1w_source_name), 'in_file')]),
         ])
     else:
-        workflow.connect([ # type: ignore[unreachable]
+        workflow.connect([  # type: ignore[unreachable]
             (bidssrc, bids_info, [(('dwi', fix_multi_T1w_source_name), 'in_file')]),
         ])
     # fmt:on

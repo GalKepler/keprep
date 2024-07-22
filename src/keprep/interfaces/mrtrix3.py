@@ -79,7 +79,7 @@ class MRConvertOutputSpec(TraitedSpec):
 
 class MRConvert(MRTrix3Base):  # pylint: disable=abstract-method
     """
-    Perform conversion between different file types and optionally extract a subset of the input image.
+    Perform conversion between different file types and optionally extract a subset of the input image. # pylint: disable=line-too-long # noqa E501
 
     Example
     -------
@@ -142,7 +142,7 @@ class TckSiftInputSpec(MRTrix3BaseInputSpec):
     fd_scale_gm = traits.Bool(
         default_value=True,
         argstr="-fd_scale_gm",
-        desc="heuristically downsize the fibre density estimates based on the presence of GM in the voxel.",  # pylint: disable=line-too-long
+        desc="heuristically downsize the fibre density estimates based on the presence of GM in the voxel.",  # pylint: disable=line-too-long # noqa E501
     )
     no_dilate_lut = traits.Bool(
         default_value=False,
@@ -152,7 +152,7 @@ class TckSiftInputSpec(MRTrix3BaseInputSpec):
     remove_untracked = traits.Bool(
         default_value=False,
         argstr="-remove_untracked",
-        desc="emove FOD lobes that do not have any streamline density attributed to them.",  # pylint: disable=line-too-long
+        desc="emove FOD lobes that do not have any streamline density attributed to them.",  # pylint: disable=line-too-long # noqa E501
     )
     fd_thresh = traits.Float(
         argstr="-fd_thresh %f",
@@ -166,7 +166,7 @@ class TckSiftInputSpec(MRTrix3BaseInputSpec):
     out_mu = File(
         exists=False,
         argstr="-out_mu %s",
-        desc="output the final value of SIFT proportionality coefficient mu to a text file",  # pylint: disable=line-too-long
+        desc="output the final value of SIFT proportionality coefficient mu to a text file",  # pylint: disable=line-too-long # noqa E501
     )
     output_debug = traits.Directory(
         exists=False,
@@ -184,11 +184,11 @@ class TckSiftInputSpec(MRTrix3BaseInputSpec):
     )
     term_ratio = traits.Float(
         argstr="-term_ratio %f",
-        desc="termination ratio; defined as the ratio between reduction in cost function, and reduction in density of streamlines",  # pylint: disable=line-too-long
+        desc="termination ratio; defined as the ratio between reduction in cost function, and reduction in density of streamlines",  # pylint: disable=line-too-long # noqa E501
     )
     term_mu = traits.Float(
         argstr="-term_mu %f",
-        desc="terminate filtering once the SIFT proportionality coefficient reaches a given value",  # pylint: disable=line-too-long
+        desc="terminate filtering once the SIFT proportionality coefficient reaches a given value",  # pylint: disable=line-too-long # noqa E501
     )
 
 
@@ -197,7 +197,7 @@ class TckSiftOutputSpec(TraitedSpec):
     out_csv = File(exists=True, desc="output statistics of execution per iteration")
     out_mu = File(
         exists=True,
-        desc="output the final value of SIFT proportionality coefficient mu to a text file",  # pylint: disable=line-too-long
+        desc="output the final value of SIFT proportionality coefficient mu to a text file",  # pylint: disable=line-too-long # noqa E501
     )
     out_selection = File(
         exists=True,
