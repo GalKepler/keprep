@@ -14,7 +14,9 @@ Overview
     * - docs
       - |docs|
     * - tests, CI & coverage
-      - |github-actions| |codecov| |codacy| |codeclimate-maintainability| |codeclimate-testcoverage|
+      - |github-actions| |codecov| |codacy|
+    * - codeclimate
+      - |codeclimate-maintainability| |codeclimate-testcoverage|
     * - version
       - |pypi| |python|
     * - styling
