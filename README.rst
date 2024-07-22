@@ -22,29 +22,29 @@ Overview
     * - license
       - |license|
 
-.. |docs| image:: https://readthedocs.org/projects/yalab-procedures/badge/?version=latest
+.. |docs| image:: https://readthedocs.org/projects/keprep/badge/?version=latest
     :target: https://keprep.readthedocs.io/en/latest/?version=latest
     :alt: Documentation Status
 
-.. |github-actions| image:: https://github.com/yalab-devops/yalab-procedures/actions/workflows/github-actions.yml/badge.svg
+.. |github-actions| image:: https://github.com/GalKepler/keprep/actions/workflows/github-actions.yml/badge.svg
     :alt: GitHub Actions Build Status
-    :target: https://github.com/yalab-devops/yalab-procedures/actions
+    :target: https://github.com/GalKepler/keprep/actions
 
-.. |codecov| image:: https://codecov.io/github/yalab-devops/yalab-procedures/graph/badge.svg?token=LO5CH471O4
+.. |codecov| image:: https://codecov.io/github/GalKepler/keprep/graph/badge.svg?token=LO5CH471O4
     :alt: Coverage Status
-    :target: https://app.codecov.io/github/yalab-devops/yalab-procedures
+    :target: https://app.codecov.io/github/GalKepler/keprep
 
 .. |codacy| image:: https://app.codacy.com/project/badge/Grade/7fe5b4cb103d4100bf00603c913b9ac1
-    :target: https://app.codacy.com/gh/yalab-devops/yalab-procedures/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade
+    :target: https://app.codacy.com/gh/GalKepler/keprep/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade
     :alt: Code Quality
 
 .. |pypi| image:: https://img.shields.io/pypi/v/yalab-procedures.svg
         :target: https://pypi.python.org/pypi/yalab-procedures
 
-.. |python| image:: https://img.shields.io/pypi/pyversions/yalab-procedures
+.. |python| image:: https://img.shields.io/pypi/pyversions/keprep
         :target: https://www.python.org
 
-.. |license| image:: https://img.shields.io/github/license/yalab-devops/yalab-procedures.svg
+.. |license| image:: https://img.shields.io/github/license/GalKepler/keprep.svg
         :target: https://opensource.org/license/mit
         :alt: License
 
@@ -60,47 +60,6 @@ Overview
 .. |pre-commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
         :target: https://github.com/pre-commit/pre-commit
 
-
-
-* Free software: MIT license
-* Documentation: https://yalab-procedures.readthedocs.io.
-
-
-Features
---------
-
-* TODO
-
-Credits
--------
-
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
-
-
-
-
-======
-KePrep
-======
-
-
-.. image:: https://img.shields.io/pypi/v/keprep.svg
-        :target: https://pypi.python.org/pypi/keprep
-
-.. image:: https://img.shields.io/travis/GalKepler/keprep.svg
-        :target: https://travis-ci.com/GalKepler/keprep
-
-.. image:: https://readthedocs.org/projects/keprep/badge/?version=latest
-        :target: https://keprep.readthedocs.io/en/latest/?version=latest
-        :alt: Documentation Status
-
-
-
-
-Python Boilerplate contains all the boilerplate you need to create a Python package.
 
 
 * Free software: MIT license
