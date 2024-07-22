@@ -14,7 +14,7 @@ Overview
     * - docs
       - |docs|
     * - tests, CI & coverage
-      - |github-actions| |codecov| |codacy| |scrutinizer|
+      - |github-actions| |codecov| |codacy| |codeclimate|
     * - version
       - |pypi| |python|
     * - styling
@@ -38,9 +38,9 @@ Overview
     :target: https://app.codacy.com/gh/GalKepler/keprep/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade
     :alt: Code Quality
 
-.. |scrutinizer| image:: https://scrutinizer-ci.com/g/GalKepler/keprep/badges/quality-score.png?b=main
-    :target: https://scrutinizer-ci.com/g/GalKepler/keprep/?branch=main
-    :alt: Scrutinizer Code Quality
+.. |codacy| image:: https://api.codeclimate.com/v1/badges/dc78868ecc19deb5fb5b/maintainability
+    :target: https://codeclimate.com/github/GalKepler/keprep/maintainability
+    :alt: Maintainability
 
 .. |pypi| image:: https://img.shields.io/pypi/v/yalab-procedures.svg
         :target: https://pypi.python.org/pypi/yalab-procedures
