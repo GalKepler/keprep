@@ -43,7 +43,7 @@ Overview
     :alt: Maintainability
 
 .. |codeclimate-testcoverage| image:: https://api.codeclimate.com/v1/badges/dc78868ecc19deb5fb5b/test_coverage
-    https://codeclimate.com/github/GalKepler/keprep/test_coverage
+    :target: https://codeclimate.com/github/GalKepler/keprep/test_coverage
     :alt: Test Coverage
 
 .. |pypi| image:: https://img.shields.io/pypi/v/keprep.svg
