@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "keprep"
-version = "0.0.1"
+version = "0.1.0"
 description = "Minimally preprocessing TheBase dMRI data."
 authors = ["Gal Kepler <galkepler@gmail.com>"]
 license = "MIT"
@@ -56,7 +56,7 @@ package-dir = {"" = "src"}
 # black configuration
 [tool.black]
 line-length = 88
-target-version = ['py38']
+target-version = ['py310']
 
 # isort configuration
 [tool.isort]
