@@ -7,6 +7,16 @@ from keprep.interfaces.bids import DerivativesDataSink
 DWI_PREPROC_BASE_ENTITIES = dict(desc="preproc", space="dwi", datatype="dwi")
 
 
+def _eddy_qc_dds(eddy_qc, source_file):
+    import shutil
+    from pathlib import Path
+
+    destination = Path(source_file).parent / "eddy_qc"
+    if destination.exists():
+        shutil.rmtree(destination)
+    shutil.copytree(eddy_qc, destination)
+
+
 def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
     """
     Build the workflow that saves derivatives.
@@ -39,6 +49,7 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
                 "dwi2t1w_aff",
                 "t1w2dwi_aff",
                 "dwi_brain_mask",
+                "eddy_qc",
                 "sdc_report",
                 "coreg_report",
                 "unsifted_tck",
@@ -46,6 +57,16 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
             ]
         ),
         name="inputnode",
+    )
+
+    ds_eddy_qc = pe.Node(
+        niu.Function(
+            input_names=["eddy_qc", "source_file"],
+            output_names=[],
+            function=_eddy_qc_dds,
+        ),
+        name="ds_eddy_qc",
+        run_without_submitting=True,
     )
 
     ds_sdc_report = pe.Node(
@@ -194,6 +215,16 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
 
     workflow.connect(
         [
+            (
+                inputnode,
+                ds_eddy_qc,
+                [("eddy_qc", "eddy_qc")],
+            ),
+            (
+                ds_dwi_preproc,
+                ds_eddy_qc,
+                [("out_file", "source_file")],
+            ),
             (
                 inputnode,
                 ds_sdc_report,
