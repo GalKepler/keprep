@@ -1,7 +1,11 @@
 import os.path as op
+import shlex
+from pathlib import Path
 
 from nipype.interfaces.base import Directory, File, TraitedSpec, traits
 from nipype.interfaces.mrtrix3.base import MRTrix3Base, MRTrix3BaseInputSpec
+from nipype.utils.filemanip import get_dependencies, which
+from nipype.utils.subprocess import run_command
 
 
 class MRConvertInputSpec(MRTrix3BaseInputSpec):
@@ -440,6 +444,65 @@ class DWIPreproc(MRTrix3Base):
     _cmd = "dwifslpreproc"
     input_spec = DWIPreprocInputSpec
     output_spec = DWIPreprocOutputSpec
+
+    def _run_interface(self, runtime, correct_return_codes=(0,)):
+        """Execute command via subprocess
+
+        Parameters
+        ----------
+        runtime : passed by the run function
+
+        Returns
+        -------
+        runtime :
+            updated runtime information
+            adds stdout, stderr, merged, cmdline, dependencies, command_path
+
+        """
+        out_environ = self._get_environ()
+        # Initialize runtime Bunch
+
+        try:
+            runtime.cmdline = self.cmdline
+        except Exception as exc:
+            raise RuntimeError(
+                "Error raised when interpolating the command line"
+            ) from exc
+
+        runtime.stdout = None
+        runtime.stderr = None
+        runtime.cmdline = self.cmdline
+        runtime.environ.update(out_environ)
+        runtime.success_codes = correct_return_codes
+
+        # which $cmd
+        executable_name = shlex.split(self._cmd_prefix + self.cmd)[0]
+        cmd_path = which(executable_name, env=runtime.environ)
+
+        if cmd_path is None:
+            raise IOError(
+                'No command "%s" found on host %s. Please check that the '
+                "corresponding package is installed."
+                % (executable_name, runtime.hostname)
+            )
+
+        runtime.command_path = cmd_path
+        runtime.dependencies = (
+            get_dependencies(executable_name, runtime.environ)
+            if self._ldd
+            else "<skipped>"
+        )
+        runtime = run_command(
+            runtime,
+            output=self.terminal_output,
+            write_cmdline=self.write_cmdline,
+        )
+        # manually copy the eddyqc outputs
+        if self.inputs.eddyqc_text:
+            eddyqc_dir = Path(self.inputs.eddyqc_all)
+            eddy_target_dir = Path(self.inputs.out_file).parent
+            eddyqc_dir.rename(eddy_target_dir / eddyqc_dir.name)
+        return runtime
 
     def _list_outputs(self):
         outputs = self.output_spec().get()
