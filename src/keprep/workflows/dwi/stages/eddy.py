@@ -3,6 +3,7 @@ from nipype.interfaces import mrtrix3 as mrt
 from nipype.interfaces import utility as niu
 
 from keprep import config
+from keprep.interfaces.mrtrix3 import DWIPreproc
 from keprep.workflows.dwi.stages.extract_b0 import init_extract_b0_wf
 
 
@@ -115,12 +116,13 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
     )
 
     dwifslpreproc = pe.Node(
-        mrt.DWIPreproc(
+        DWIPreproc(
             eddy_options=" --fwhm=0 --flm='quadratic'",
             rpe_options="pair",
             align_seepi=True,
             nthreads=config.nipype.omp_nthreads,
             eddyqc_all="eddyqc",
+            args="-nocleanup",
         ),
         name="dwifslpreproc",
     )

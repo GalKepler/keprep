@@ -21,7 +21,7 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
     pe.Workflow
         the workflow
     """
-    output_dir = str(config.execution.output_dir)
+    output_dir = str(config.execution.keprep_dir)
 
     workflow = pe.Workflow(name=name)
 
