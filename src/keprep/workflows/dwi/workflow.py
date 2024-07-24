@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Union
 
 from bids import BIDSLayout
 from nipype.interfaces import utility as niu
@@ -71,7 +70,7 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
     inputnode.inputs.fmap_bval = Path(layout.get_bval(fieldmap))
     inputnode.inputs.fmap_json = Path(layout.get_nearest(fieldmap, extension="json"))
 
-    outputnode = pe.Node(
+    outputnode = pe.Node(  # noqa: F841
         niu.IdentityInterface(
             fields=["dwi_preproc", "dwi_reference", "dwi_mask"],
         ),
@@ -281,6 +280,13 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
                 ds_workflow,
                 [
                     ("dwi_file", "inputnode.source_file"),
+                ],
+            ),
+            (
+                eddy_wf,
+                ds_workflow,
+                [
+                    ("outputnode.eddy_qc", "inputnode.eddy_qc"),
                 ],
             ),
             (

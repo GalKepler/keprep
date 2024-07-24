@@ -35,7 +35,9 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
     )
 
     outputnode = pe.Node(
-        niu.IdentityInterface(fields=["dwi_preproc", "dwi_reference_distorted"]),
+        niu.IdentityInterface(
+            fields=["dwi_preproc", "dwi_reference_distorted", "eddy_qc"]
+        ),
         name="outputnode",
     )
 
@@ -156,6 +158,7 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
                 outputnode,
                 [
                     ("out_file", "dwi_preproc"),
+                    ("eddyqc_all", "eddy_qc"),
                 ],
             ),
         ]

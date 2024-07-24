@@ -1,7 +1,6 @@
 # emacs: -*- mode: python; py-indent-offset: 4; indent-tabs-mode: nil -*-
 # vi: set ft=python sts=4 ts=4 sw=4 et:
 from pathlib import Path
-from typing import Union
 
 from bids import BIDSLayout
 from bids.layout import Query, parse_file_entities
@@ -19,7 +18,8 @@ from niworkflows.interfaces.bids import DerivativesDataSink as _DDSink
 LOGGER = logging.getLogger("nipype.interface")
 
 CUSTOM_PATH_PATTERNS = [
-    "sub-{subject}[/ses-{session}]/{datatype<dwi>|dwi}/sub-{subject}[_ses-{session}][_acq-{acquisition}][_rec-{reconstruction}][_dir-{direction}][_run-{run}][_space-{space}][_cohort-{cohort}][_res-{resolution}][_desc-{desc}]_{suffix<dwi|dwiref|epiref|lowb|dseg|streamlines>}{extension<.json|.nii.gz|.nii|.tck|.trk>|.nii.gz}"  # pylint: disable=line-too-long
+    "sub-{subject}[/ses-{session}]/{datatype<dwi>|dwi}/sub-{subject}[_ses-{session}][_acq-{acquisition}][_rec-{reconstruction}][_dir-{direction}][_run-{run}][_space-{space}][_cohort-{cohort}][_res-{resolution}][_desc-{desc}]_{suffix<dwi|dwiref|epiref|lowb|dseg|streamlines>}{extension<.json|.nii.gz|.nii|.tck|.trk>|.nii.gz}",  # pylint: disable=line-too-long
+    "sub-{subject}[/ses-{session}]/{datatype<dwi>|dwi}/{desc}",
 ]
 
 
