@@ -68,7 +68,7 @@ Ready to contribute? Here's how to set up `keprep` for local development.
 
     $ mkvirtualenv keprep
     $ cd keprep/
-    $ python setup.py develop
+    $ poetry install
 
 4. Create a branch for local development::
 
@@ -103,16 +103,14 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 3.5, 3.6, 3.7 and 3.8, and for PyPy. Check
-   https://travis-ci.com/GalKepler/keprep/pull_requests
-   and make sure that the tests pass for all supported Python versions.
+3. The pull request should work for Python 3.10, 3.11, and 3.12, and for PyPy.
 
 Tips
 ----
 
 To run a subset of tests::
 
-$ pytest tests.test_keprep
+$ pytest tests.workflows.test_anatomical.py
 
 
 Deploying
