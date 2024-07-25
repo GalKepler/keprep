@@ -602,6 +602,7 @@ def from_dict(settings, init=True, ignore=None):
     seeds.load(settings, init=initialize("seeds"), ignore=ignore)
 
     loggers.init()
+    init_spaces()
 
 
 def load(filename, skip=None, init=True):
