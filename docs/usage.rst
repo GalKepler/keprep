@@ -33,6 +33,9 @@ Configuration Options
 
 Execution Settings
 ------------------
+
+(accessible through `config.execution`)
+
 * **bids_dir**: Path to the BIDS dataset.
 * **output_dir**: Path to the output directory.
 * **participant_label**: List of participant identifiers to be preprocessed.
@@ -47,12 +50,18 @@ Execution Settings
 
 Nipype Settings
 ----------------
+
+(accessible through `config.nipype`)
+
 * **nprocs**: Number of processes (compute tasks) that can be run in parallel (multiprocessing only).
 * **omp_nthreads**: Number of CPUs a single process can access for multithreaded execution.
 * **stop_on_first_crash**: Whether the workflow should stop or continue after the first error (default: True).
 
 Workflow Settings
 -----------------
+
+(accessible through `config.workflow`)
+
 * **anat_only**: Execute the anatomical preprocessing only (default: False).
 * **dwi2t1w_dof**: Degrees of freedom of the DWI-to-T1w registration steps (default: 6).
 * **dwi2t1w_init**: Initialization method for DWI-to-T1w coregistration (default: register).
