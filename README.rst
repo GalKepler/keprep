@@ -78,18 +78,17 @@ Overview
 About
 ------
 
-*KePrep* is a diffusion magnetic resonance imaging (dMRI) preprocessing pipeline that is designed to provide a reproducible, user-friendly,
-and easily accesible interface for dMRI data associated with the Strauss Neuroplasticity Brain Bank (SNBB).
+KePrep is a diffusion magnetic resonance imaging (dMRI) preprocessing pipeline designed to provide a reproducible, user-friendly, and easily accessible interface for dMRI data associated with the Strauss Neuroplasticity Brain Bank (SNBB).
 
-.. note:: 
+.. note::
 
   The *KePrep* pipeline uses much of the code from fMRIPrep_ (Esteban et al., 2019) and QSIPrep_ (Cieslak et al., 2021) and is built on top of Nipype_ (Gorgolewski et al., 2011).
   It is crucial to note that the similarities in the code **do not imply that the authors of fMRIPrep, QSIPrep, or Nipype endorse KePrep or its pipeline**.
-  These similarities are are aimed at providing a consistent format and code for contributing to the pipeline.
+  These similarities are aimed at providing a consistent format and code for contributing to the pipeline.
 
 dMRI data requires a series of preprocessing steps to be performed before it can be used in further analysis.
-Although it is common for researchers to apply different preprocessing steps (and using different tools to do so),
-there is a general consensus on the most common steps that should be performed. Therefore, *KePrep* aims to provide a standardized pipeline that allows researchers to gain access to the dMRI data at different stages of preprocessing.
+Although researchers often apply different preprocessing steps using various tools, there is a general consensus on the most common steps.
+Therefore, *KePrep* aims to provide a standardized pipeline, allowing researchers to access the dMRI data at different stages of preprocessing.
 
 This pipeline includes the following steps:
 
