@@ -87,6 +87,4 @@ Workflow Settings
 * **debug_sift**: Enable debugging mode for SIFT (default: False).
 
 
-
-
 .. _BIDS: https://bids.neuroimaging.io
