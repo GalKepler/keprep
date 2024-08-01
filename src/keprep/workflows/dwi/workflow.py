@@ -53,7 +53,6 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
                 # Anatomical
                 "t1w_preproc",
                 "t1w_mask",
-                "five_tissue_type",
             ]
         ),
         name="inputnode",

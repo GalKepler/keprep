@@ -465,32 +465,6 @@ class workflow(_Config):
     skull_strip_t1w = "force"
     """Skip brain extraction of the T1w image (default is ``force``, meaning that
     *KePrep* will run brain extraction of the T1w)."""
-    response_algorithm = "dhollander"
-    """Algorithm to estimate the response function."""
-    fod_algorithm = "msmt_csd"
-    """Algorithm to estimate the fiber orientation distribution."""
-    n_raw_tracts = 400000
-    """Number of streamlines to generate in the tractography."""
-    n_tracts = 40000
-    """Number of streamlines to keep after filtering."""
-    tracking_algorithm = "SD_Stream"
-    """Algorithm to perform tractography."""
-    tracking_max_angle = 45
-    """Maximum angle between steps in the tractography."""
-    tracking_lenscale_min = 30
-    """Minimum length scale for the tractography."""
-    tracking_lenscale_max = 500
-    """Maximum length scale for the tractography."""
-    tracking_stepscale = 0.2
-    """Step scale for the tractography."""
-    tracking_minvol = 259209  # 59209 for theBase. 577275 for HCP
-    """Minimum volume for the tractography."""
-    fs_scale_gm = True
-    """Heuristically downsize the fibre density estimates based on the presence of GM in the voxel."""
-    five_tissue_type_algorithm = "hsvs"
-    """Algorithm to generate the five-tissue-type segmentation."""
-    debug_sift = False
-    """Enable debugging mode for SIFT."""
 
 
 class loggers:
