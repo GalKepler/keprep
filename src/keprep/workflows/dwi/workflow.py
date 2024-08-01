@@ -10,7 +10,6 @@ from keprep.workflows.dwi.stages.coregister import init_dwi_coregister_wf
 from keprep.workflows.dwi.stages.derivatives import init_derivatives_wf
 from keprep.workflows.dwi.stages.eddy import init_eddy_wf
 from keprep.workflows.dwi.stages.post_eddy import init_post_eddy_wf
-from keprep.workflows.dwi.stages.tractography import init_tractography_wf
 
 
 def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
@@ -213,37 +212,6 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
         ]
     )
 
-    tractography_wf = init_tractography_wf()
-    workflow.connect(
-        [
-            (
-                post_eddy,
-                tractography_wf,
-                [
-                    ("outputnode.dwi_mif", "inputnode.dwi_mif"),
-                    ("outputnode.dwi_preproc", "inputnode.dwi_nifti"),
-                    ("outputnode.dwi_reference", "inputnode.dwi_reference"),
-                ],
-            ),
-            (
-                coreg_wf,
-                tractography_wf,
-                [
-                    ("outputnode.dwi_brain_mask", "inputnode.mask_file"),
-                    ("outputnode.t1w2dwi_aff", "inputnode.t1w_to_dwi_transform"),
-                ],
-            ),
-            (
-                inputnode,
-                tractography_wf,
-                [
-                    ("five_tissue_type", "inputnode.five_tissue_type"),
-                    ("t1w_preproc", "inputnode.t1w_file"),
-                ],
-            ),
-        ]
-    )
-
     coreg_report = pe.Node(
         SimpleBeforeAfter(
             before_label="T1w",
@@ -323,14 +291,6 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
                 coreg_report,
                 ds_workflow,
                 [("out_report", "inputnode.coreg_report")],
-            ),
-            (
-                tractography_wf,
-                ds_workflow,
-                [
-                    ("outputnode.unsifted_tck", "inputnode.unsifted_tck"),
-                    ("outputnode.sifted_tck", "inputnode.sifted_tck"),
-                ],
             ),
         ]
     )
