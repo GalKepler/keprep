@@ -72,19 +72,6 @@ Workflow Settings
 * **skull_strip_template**: Change default brain extraction template (default: OASIS30ANTs).
 * **hires**: Run FreeSurfer recon-all with the -hires flag.
 * **skull_strip_t1w**: Skip brain extraction of the T1w image (default: force).
-* **response_algorithm**: Algorithm to estimate the response function (default: dhollander).
-* **fod_algorithm**: Algorithm to estimate the fiber orientation distribution (default: msmt_csd).
-* **n_raw_tracts**: Number of streamlines to generate in the tractography (default: 400000).
-* **n_tracts**: Number of streamlines to keep after filtering (default: 40000).
-* **tracking_algorithm**: Algorithm to perform tractography (default: SD_Stream).
-* **tracking_max_angle**: Maximum angle between steps in the tractography (default: 45).
-* **tracking_lenscale_min**: Minimum length scale for the tractography (default: 30).
-* **tracking_lenscale_max**: Maximum length scale for the tractography (default: 500).
-* **tracking_stepscale**: Step scale for the tractography (default: 0.2).
-* **tracking_minvol**: Minimum volume for the tractography (default: 259209).
-* **fs_scale_gm**: Heuristically downsize the fiber density estimates based on the presence of GM in the voxel (default: True).
-* **five_tissue_type_algorithm**: Algorithm to generate the five-tissue-type segmentation (default: hsvs).
-* **debug_sift**: Enable debugging mode for SIFT (default: False).
 
 
 .. _BIDS: https://bids.neuroimaging.io
