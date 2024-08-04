@@ -1,11 +1,9 @@
-Welcome to KePrep's documentation!
-======================================
+
+.. include:: ../README.rst
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 3
 
-   readme
    installation
    usage
    modules

@@ -2,7 +2,6 @@
 KePrep: PreProcessing Strauss Neuroplasticity Brain Bank dMRI data
 ============================================================================
 
-KePrep is a Nipype_-based pipeline for the preprocessing of dMRI data associated with the Neuroplasticity Brain Bank (SNBB).
 
 
 ========
@@ -76,10 +75,33 @@ Overview
 * Documentation: https://keprep.readthedocs.io.
 
 
-Features
---------
+About
+------
 
-* TODO
+KePrep is a diffusion magnetic resonance imaging (dMRI) preprocessing pipeline designed to provide a reproducible, user-friendly, and easily accessible interface for dMRI data associated with the Strauss Neuroplasticity Brain Bank (SNBB).
+
+.. note::
+
+  The *KePrep* pipeline uses much of the code from fMRIPrep_ (Esteban et al., 2019) and QSIPrep_ (Cieslak et al., 2021) and is built on top of Nipype_ (Gorgolewski et al., 2011).
+  It is crucial to note that the similarities in the code **do not imply that the authors of fMRIPrep, QSIPrep, or Nipype endorse KePrep or its pipeline**.
+  These similarities are aimed at providing a consistent format and code for contributing to the pipeline.
+
+dMRI data requires a series of preprocessing steps to be performed before it can be used in further analysis.
+Although researchers often apply different preprocessing steps using various tools, there is a general consensus on the most common steps.
+Therefore, *KePrep* aims to provide a standardized pipeline, allowing researchers to access the dMRI data at different stages of preprocessing.
+
+This pipeline includes the following steps:
+
+1. Denoising
+2. Motion and Eddy Current Correction
+3. Brain Extraction
+4. Bias Field Correction
+5. Tractography
+6. Coregistration to subject's anatomical image
+
+While being tailored to the SNBB, *KePrep* is designed to be easily adaptable to other dMRI datasets.
+
+More information and documentation can be found at https://keprep.readthedocs.io.
 
 Credits
 -------
@@ -89,3 +111,5 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
 .. _Nipype: https://nipype.readthedocs.io/en/latest/
+.. _fMRIprep: https://fmriprep.org/en/stable/
+.. _qsiprep: https://qsiprep.readthedocs.io/en/latest/
