@@ -8,6 +8,7 @@ from nipype.pipeline import engine as pe
 from packaging.version import Version
 
 from keprep import config
+from keprep.interfaces.bids.utils import write_bidsignore, write_derivative_description
 from keprep.workflows.base.messages import (
     ANAT_DERIVATIVES_FAILED,
     BASE_POSTDESC,
@@ -47,6 +48,13 @@ def init_keprep_wf():
 
     keprep_wf = Workflow(name=f"keprep_{ver.major}_{ver.minor}_{ver.micro}_wf")
     keprep_wf.base_dir = config.execution.work_dir
+
+    # Write BIDS-required files (dataset_description.json, ...)
+    write_derivative_description(
+        config.execution.bids_dir,
+        config.execution.keprep_dir,
+    )
+    write_bidsignore(config.execution.keprep_dir)
 
     freesurfer = config.workflow.do_reconall
     if freesurfer:

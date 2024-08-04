@@ -189,30 +189,6 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
         run_without_submitting=True,
     )
 
-    ds_unsifted_tck = pe.Node(
-        DerivativesDataSink(
-            base_directory=output_dir,
-            suffix="streamlines",
-            desc="unsifted",
-            extension=".tck",
-            dismiss_entities=["direction"],
-        ),
-        name="ds_unsifted_tck",
-        run_without_submitting=True,
-    )
-
-    ds_sifted_tck = pe.Node(
-        DerivativesDataSink(
-            base_directory=output_dir,
-            suffix="streamlines",
-            desc="sifted",
-            extension=".tck",
-            dismiss_entities=["direction"],
-        ),
-        name="ds_sifted_tck",
-        run_without_submitting=True,
-    )
-
     workflow.connect(
         [
             (
@@ -290,16 +266,6 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
                 inputnode,
                 ds_t1w2dwi_aff,
                 [("t1w2dwi_aff", "in_file"), ("source_file", "source_file")],
-            ),
-            (
-                inputnode,
-                ds_unsifted_tck,
-                [("unsifted_tck", "in_file"), ("source_file", "source_file")],
-            ),
-            (
-                inputnode,
-                ds_sifted_tck,
-                [("sifted_tck", "in_file"), ("source_file", "source_file")],
             ),
         ]
     )
