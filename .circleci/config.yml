@@ -13,7 +13,6 @@ jobs:
       - python/install-packages:
           pkg-manager: poetry
       - python/install-packages:
-          args: tox
           pkg-manager: poetry
       - run:
           name: Run tests
