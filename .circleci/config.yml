@@ -12,8 +12,6 @@ jobs:
       - checkout
       - python/install-packages:
           pkg-manager: poetry
-      - python/install-packages:
-          pkg-manager: poetry
       - run:
           name: Run tests
           command: poetry run tox
