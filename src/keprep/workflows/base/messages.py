@@ -33,3 +33,11 @@ It is released under the [CC0]\
 ### References
 
 """
+
+DIFFUSION_WORKFLOW_DESCRIPTION = """
+Diffusion data preprocessing
+
+: For each of the {n_dwi} DWI scans found per subject
+ (across all sessions), the following preprocessing was
+    performed.
+"""  # TODO: add more details

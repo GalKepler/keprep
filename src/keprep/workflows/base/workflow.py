@@ -1,4 +1,5 @@
 import os
+import sys
 import warnings
 from copy import deepcopy
 from pathlib import Path
@@ -8,11 +9,17 @@ from nipype.pipeline import engine as pe
 from packaging.version import Version
 
 from keprep import config
-from keprep.interfaces.bids.utils import write_bidsignore, write_derivative_description
+from keprep.interfaces.bids import (
+    DerivativesDataSink,
+    write_bidsignore,
+    write_derivative_description,
+)
+from keprep.interfaces.reports.reports import AboutSummary, SubjectSummary
 from keprep.workflows.base.messages import (
     ANAT_DERIVATIVES_FAILED,
     BASE_POSTDESC,
     BASE_WORKFLOW_DESCRIPTION,
+    DIFFUSION_WORKFLOW_DESCRIPTION,
 )
 from keprep.workflows.dwi.workflow import init_dwi_preproc_wf
 
@@ -228,6 +235,41 @@ def init_single_subject_wf(subject_id: str):
         name="bids_info",
     )
 
+    summary = pe.Node(
+        SubjectSummary(
+            std_spaces=spaces.get_spaces(nonstandard=False),
+            nstd_spaces=spaces.get_spaces(standard=False),
+        ),
+        name="summary",
+        run_without_submitting=True,
+    )
+
+    about = pe.Node(
+        AboutSummary(version=config.environment.version, command=" ".join(sys.argv)),
+        name="about",
+        run_without_submitting=True,
+    )
+
+    ds_report_summary = pe.Node(
+        DerivativesDataSink(
+            base_directory=str(config.execution.keprep_dir),
+            desc="summary",
+            datatype="figures",
+        ),
+        name="ds_report_summary",
+        run_without_submitting=True,
+    )
+
+    ds_report_about = pe.Node(
+        DerivativesDataSink(
+            base_directory=str(config.execution.keprep_dir),
+            desc="about",
+            datatype="figures",
+        ),
+        name="ds_report_about",
+        run_without_submitting=True,
+    )
+
     # Preprocessing of T1w (includes registration to MNI)
     anat_preproc_wf = init_anat_preproc_wf(
         bids_root=str(config.execution.bids_dir),
@@ -248,6 +290,7 @@ def init_single_subject_wf(subject_id: str):
         t2w=subject_data["t2w"],
         cifti_output=config.workflow.cifti_output,
     )
+    anat_preproc_wf.__desc__ = f"\n\n{anat_preproc_wf.__desc__}"
     # fmt:off
     workflow.connect([
         (inputnode, anat_preproc_wf, [('subjects_dir', 'inputnode.subjects_dir')]),
@@ -256,16 +299,21 @@ def init_single_subject_wf(subject_id: str):
                                     ('t2w', 'inputnode.t2w'),
                                     ('roi', 'inputnode.roi'),
                                     ('flair', 'inputnode.flair')]),
+        (bidssrc, bids_info, [(('t1w', fix_multi_T1w_source_name), 'in_file')]),
+        (inputnode, summary, [('subjects_dir', 'subjects_dir')]),
+        (bids_info, summary, [('subject', 'subject_id')]),
+        (bidssrc, summary, [('t1w', 't1w'),
+                            ('t2w', 't2w'),
+                            ('dwi', 'dwi')]),
+        (bidssrc, ds_report_summary, [
+            (("t1w", fix_multi_T1w_source_name), "source_file"),
+        ]),
+        (summary, ds_report_summary, [("out_report", "in_file")]),
+        (bidssrc, ds_report_about, [
+            (("t1w", fix_multi_T1w_source_name), "source_file")
+        ]),
+        (about, ds_report_about, [("out_report", "in_file")]),
     ])
-
-    if not anat_derivatives:
-        workflow.connect([
-            (bidssrc, bids_info, [(('t1w', fix_multi_T1w_source_name), 'in_file')]),
-        ])
-    else:
-        workflow.connect([  # type: ignore[unreachable]
-            (bidssrc, bids_info, [(('dwi', fix_multi_T1w_source_name), 'in_file')]),
-        ])
 
     # Overwrite ``out_path_base`` of smriprep's DataSinks
     for node in workflow.list_node_names():
@@ -277,6 +325,9 @@ def init_single_subject_wf(subject_id: str):
 
     for dwi_file in subject_data["dwi"]:
         dwi_preproc_wf = init_dwi_preproc_wf(dwi_file, subject_data)
+        dwi_preproc_wf.__desc__ = DIFFUSION_WORKFLOW_DESCRIPTION.format(
+            n_dwi=len(subject_data["dwi"])
+        )
         workflow.connect(
             [
                 (

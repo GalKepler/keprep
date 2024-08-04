@@ -342,6 +342,8 @@ class execution(_Config):
     """FreeSurfer's subjects directory."""
     layout = None
     """A :py:class:`~keprep.bids.layout.QSIPrepLayout` object, see :py:func:`init`."""
+    reportlets_dir = None
+    """Path to a directory where reportlets will be stored."""
     log_dir = None
     """The path to a directory that contains execution logs."""
     log_level = 25
@@ -424,6 +426,9 @@ class execution(_Config):
             cls.participant_label = cls.layout.get_subjects()
         else:
             cls.participant_label = list(cls.participant_label)
+        if cls.reportlets_dir is None:
+            cls.reportlets_dir = Path(cls.work_dir) / "reportlets"
+        cls.reportlets_dir.mkdir(exist_ok=True, parents=True)  # type: ignore[union-attr]
 
 
 # These variables are not necessary anymore

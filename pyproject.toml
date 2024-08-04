@@ -33,6 +33,8 @@ tox = "^4.16.0"
 doc8 = "^1.1.1"
 flake8-pyproject = "^1.2.3"
 pytest = "^8.3.2"
+nireports = "^23.2.1"
+setuptools = "^72.1.0"
 
 [tool.poetry.dev-dependencies]
 coverage = "^7.5.4"  # testing
