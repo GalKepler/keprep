@@ -254,7 +254,7 @@ class nipype(_Config):
     memory_gb = None
     """Estimation in GB of the RAM this workflow can allocate at any given time."""
     nprocs = os.cpu_count()
-    """Number of processes (compute tasks) that can be run in parallel (multiprocessing only)."""  # noqa: C0301
+    """Number of processes (compute tasks) that can be run in parallel (multiprocessing only)."""  # noqa: E501
     omp_nthreads = None
     """Number of CPUs a single process can access for multithreaded execution."""
     plugin = "MultiProc"

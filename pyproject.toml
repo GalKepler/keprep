@@ -31,6 +31,8 @@ smriprep = "^0.12.1"
 sdcflows = "^2.5.1"
 tox = "^4.16.0"
 doc8 = "^1.1.1"
+flake8-pyproject = "^1.2.3"
+pytest = "^8.3.2"
 
 [tool.poetry.dev-dependencies]
 coverage = "^7.5.4"  # testing
@@ -88,3 +90,7 @@ source = [
 omit = [
     "tests/*"
 ]
+
+[tool.flake8]
+max-line-length = 88
+per-file-ignores = ["src/keprep/config.py:E501", "src/keprep/interfaces/*.py:E501"]

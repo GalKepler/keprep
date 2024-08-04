@@ -314,4 +314,4 @@ def _get_wf_name(filename):
 
     fname = Path(filename).name.rpartition(".nii")[0].replace("_dwi", "_wf")
     fname_nosub = "_".join(fname.split("_")[1:])
-    return f"dwi_preproc_{fname_nosub.replace('.', '_').replace(' ', '').replace('-', '_')}"
+    return f"dwi_preproc_{fname_nosub.replace('.', '_').replace(' ', '').replace('-', '_')}"  # noqa: E501
