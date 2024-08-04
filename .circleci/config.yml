@@ -13,8 +13,20 @@ jobs:
       - python/install-packages:
           pkg-manager: poetry
       - run:
-          name: Run tests
-          command: poetry run tox
+          name: Check
+          command: poetry run tox -e check -v
+      - run:
+          name: docs
+          command: poetry run tox -e docs -v
+      - run:
+          name: flake8
+          command: poetry run tox -e flake8 -v
+      - run:
+          name: tests
+          command: poetry run pytest
+      - run:
+          name: coverage
+          command: poetry run tox -e report -v
       - store_test_results:
           path: junit.xml
   deploy:
