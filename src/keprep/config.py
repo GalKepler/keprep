@@ -470,6 +470,17 @@ class workflow(_Config):
     skull_strip_t1w = "force"
     """Skip brain extraction of the T1w image (default is ``force``, meaning that
     *KePrep* will run brain extraction of the T1w)."""
+    denoise_method = "dwidenoise"
+    """Image-based denoising method. Either "dwidenoise" (MRtrix), "patch2self" (DIPY)
+    or "none"."""
+    dwi_denoise_window = "auto"
+    """Window size in voxels for image-based denoising, integer or "auto"."""
+    dwi_no_biascorr = False
+    """DEPRECATED: see --b1-biascorrect-stage."""
+    eddy_config = "--fwhm=0 --flm='quadratic'"
+    """Configuration for running Eddy."""
+    hmc_model = "eddy"
+    """Model used to generate target images for hmc."""
 
 
 class loggers:

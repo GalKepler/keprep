@@ -6,10 +6,13 @@ from nipype.pipeline import engine as pe
 
 from keprep import config
 from keprep.interfaces.bids import get_fieldmap
+from keprep.interfaces.bids.bids import DerivativesDataSink
+from keprep.interfaces.reports.reports import DiffusionSummary
 from keprep.workflows.dwi.stages.coregister import init_dwi_coregister_wf
 from keprep.workflows.dwi.stages.derivatives import init_derivatives_wf
 from keprep.workflows.dwi.stages.eddy import init_eddy_wf
 from keprep.workflows.dwi.stages.post_eddy import init_post_eddy_wf
+from keprep.workflows.dwi.utils import calculate_denoise_window, read_field_from_json
 
 
 def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
@@ -74,6 +77,69 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
         ),
         name="outputnode",
     )
+
+    if (
+        config.workflow.denoise_method == "dwidenoise"
+        and config.workflow.dwi_denoise_window == "auto"
+    ):
+        dwi_denoise_window = calculate_denoise_window(dwi_file)  # type: ignore[arg-type]
+
+    bo_to_t1w = "Rigid" if config.workflow.dwi2t1w_dof == 6 else "Affine"
+    summary = pe.Node(
+        DiffusionSummary(
+            distortion_correction="TOPUP",
+            hmc_model=config.workflow.hmc_model,
+            b0_to_t1w_transform=bo_to_t1w,
+            denoise_method=config.workflow.denoise_method,
+            dwi_denoise_window=dwi_denoise_window,
+        ),
+        name="summary",
+        run_without_submitting=True,
+    )
+
+    read_pe_direction = pe.Node(
+        niu.Function(
+            input_names=["json_file", "field"],
+            output_names=["pe_dir"],
+            function=read_field_from_json,
+        ),
+        name="read_pe_direction",
+    )
+    read_pe_direction.inputs.field = "PhaseEncodingDirection"
+
+    # Reporting
+    ds_report_summary = pe.Node(
+        DerivativesDataSink(
+            base_directory=str(config.execution.keprep_dir),  # type: ignore[attr-defined]
+            datatype="figures",
+            suffix="dwi",
+            desc="summary",
+            source_file=dwi_file,
+            dismiss_entities=["direction"],
+        ),
+        name="ds_report_summary",
+        run_without_submitting=True,
+    )
+    workflow.connect(
+        [
+            (
+                inputnode,
+                read_pe_direction,
+                [("dwi_json", "json_file")],
+            ),
+            (
+                read_pe_direction,
+                summary,
+                [("pe_dir", "pe_direction")],
+            ),
+            (
+                summary,
+                ds_report_summary,
+                [("out_report", "in_file")],
+            ),
+        ]
+    )
+
     dwi_conversion_to_mif_node = pe.Node(
         interface=mrt.MRConvert(
             out_file="dwi.mif", nthreads=config.nipype.omp_nthreads
@@ -115,7 +181,8 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
     dwi_denoise_node = pe.Node(
         interface=mrt.DWIDenoise(
             out_file="dwi_denoised.mif",
-            noise="noise.mif",
+            extent=(dwi_denoise_window, dwi_denoise_window, dwi_denoise_window),
+            noise="noise.nii.gz",
             nthreads=config.nipype.omp_nthreads,
         ),
         name="dwi_denoise",

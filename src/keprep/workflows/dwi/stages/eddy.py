@@ -119,7 +119,7 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
 
     dwifslpreproc = pe.Node(
         DWIPreproc(
-            eddy_options=" --fwhm=0 --flm='quadratic'",
+            eddy_options=f" {config.workflow.eddy_config}",
             rpe_options="pair",
             align_seepi=True,
             nthreads=config.nipype.omp_nthreads,

@@ -14,7 +14,7 @@ from keprep.interfaces.bids import (
     write_bidsignore,
     write_derivative_description,
 )
-from keprep.interfaces.reports.reports import AboutSummary, SubjectSummary
+from keprep.interfaces.reports import AboutSummary, SubjectSummary
 from keprep.workflows.base.messages import (
     ANAT_DERIVATIVES_FAILED,
     BASE_POSTDESC,
@@ -237,8 +237,8 @@ def init_single_subject_wf(subject_id: str):
 
     summary = pe.Node(
         SubjectSummary(
-            std_spaces=spaces.get_spaces(nonstandard=False),
-            nstd_spaces=spaces.get_spaces(standard=False),
+            std_spaces=spaces.get_spaces(nonstandard=False),  # type: ignore[attr-defined]
+            nstd_spaces=spaces.get_spaces(standard=False),  # type: ignore[attr-defined]
         ),
         name="summary",
         run_without_submitting=True,
@@ -252,7 +252,7 @@ def init_single_subject_wf(subject_id: str):
 
     ds_report_summary = pe.Node(
         DerivativesDataSink(
-            base_directory=str(config.execution.keprep_dir),
+            base_directory=str(config.execution.keprep_dir),  # type: ignore[attr-defined]
             desc="summary",
             datatype="figures",
         ),
@@ -262,7 +262,7 @@ def init_single_subject_wf(subject_id: str):
 
     ds_report_about = pe.Node(
         DerivativesDataSink(
-            base_directory=str(config.execution.keprep_dir),
+            base_directory=str(config.execution.keprep_dir),  # type: ignore[attr-defined]
             desc="about",
             datatype="figures",
         ),

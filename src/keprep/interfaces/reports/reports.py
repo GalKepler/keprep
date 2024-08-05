@@ -49,6 +49,18 @@ SUBJECT_TEMPLATE = """\
 \t</ul>
 """
 
+DIFFUSION_TEMPLATE = """\t\t<h3 class="elem-title">Summary</h3>
+\t\t<ul class="elem-desc">
+\t\t\t<li>Phase-encoding (PE) direction: {pedir}</li>
+\t\t\t<li>Susceptibility distortion correction: {sdc}</li>
+\t\t\t<li>Coregistration Transform: {coregistration}</li>
+\t\t\t<li>Denoising Method: {denoise_method}</li>
+\t\t\t<li>Denoising Window: {denoise_window}</li>
+\t\t\t<li>HMC Model: {hmc_model}</li>
+\t\t</ul>
+"""
+# {validation_reports}
+
 ABOUT_TEMPLATE = """\t<ul>
 \t\t<li>KePrep version: {version}</li>
 \t\t<li>KePrep command: <code>{command}</code></li>
@@ -152,4 +164,67 @@ class AboutSummary(SummaryInterface):
             version=self.inputs.version,
             command=self.inputs.command,
             date=time.strftime("%Y-%m-%d %H:%M:%S %z"),
+        )
+
+
+class DiffusionSummaryInputSpec(BaseInterfaceInputSpec):
+    distortion_correction = traits.Str(
+        default_value="TOPUP",
+        desc="Susceptibility distortion correction method",
+        mandatory=False,
+    )
+    pe_direction = traits.Enum(
+        None,
+        "i",
+        "i-",
+        "j",
+        "j-",
+        mandatory=True,
+        desc="Phase-encoding direction detected",
+    )
+    impute_slice_threshold = traits.CFloat(desc="threshold for imputing a slice")
+    hmc_model = traits.Str(desc="model used for hmc")
+    b0_to_t1w_transform = traits.Enum(
+        "Rigid", "Affine", desc="Transform type for coregistration"
+    )
+    denoise_method = traits.Str(desc="method used for image denoising")
+    dwi_denoise_window = traits.Either(
+        traits.Int(), traits.Str(), desc="window size for dwidenoise"
+    )
+    output_spaces = traits.List(desc="Target spaces")
+    confounds_file = File(exists=True, desc="Confounds file")
+    validation_reports = InputMultiObject(File(exists=True))
+
+
+class DiffusionSummary(SummaryInterface):
+    input_spec = DiffusionSummaryInputSpec
+
+    def _generate_segment(self):
+        if self.inputs.pe_direction is None:
+            pedir = "MISSING - Assuming Anterior-Posterior"
+        else:
+            pedir = {"i": "Left-Right", "j": "Anterior-Posterior"}[
+                self.inputs.pe_direction[0]
+            ]
+
+        if isdefined(self.inputs.confounds_file):
+            with open(self.inputs.confounds_file) as cfh:
+                conflist = cfh.readline().strip("\n").strip()  # noqa: F841
+        else:
+            conflist = ""  # noqa: F841
+
+        validation_summaries = []  # noqa: F841
+        # for summary in self.inputs.validation_reports:
+        #     with open(summary, "r") as summary_f:
+        #         validation_summaries.extend(summary_f.readlines())
+        # validation_summary = "\n".join(validation_summaries)
+
+        return DIFFUSION_TEMPLATE.format(
+            pedir=pedir,
+            sdc=self.inputs.distortion_correction,
+            coregistration=self.inputs.b0_to_t1w_transform,
+            hmc_model=self.inputs.hmc_model,
+            denoise_method=self.inputs.denoise_method,
+            denoise_window=self.inputs.dwi_denoise_window,
+            # validation_reports=validation_summary,
         )
