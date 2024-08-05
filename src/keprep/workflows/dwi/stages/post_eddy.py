@@ -5,6 +5,7 @@ from nipype.interfaces import utility as niu
 from keprep import config
 from keprep.interfaces.mrtrix3 import MRConvert
 from keprep.workflows.dwi.stages.extract_b0 import init_extract_b0_wf
+from keprep.workflows.dwi.utils import plot_eddy_qc
 
 
 def init_post_eddy_wf(name: str = "post_eddy_wf") -> pe.Workflow:
@@ -27,6 +28,7 @@ def init_post_eddy_wf(name: str = "post_eddy_wf") -> pe.Workflow:
         niu.IdentityInterface(
             fields=[
                 "dwi_preproc",
+                "eddy_qc",
             ]
         ),
         name="inputnode",
@@ -43,9 +45,38 @@ def init_post_eddy_wf(name: str = "post_eddy_wf") -> pe.Workflow:
                 "dwi_json",
                 "dwi_reference",
                 "dwi_reference_json",
+                "eddy_qc_plot",
             ]
         ),
         name="outputnode",
+    )
+
+    plot_eddy_qc_node = pe.Node(
+        niu.Function(
+            input_names=["eddy_qc", "out_file"],
+            output_names=["out_file"],
+            function=plot_eddy_qc,
+        ),
+        name="plot_eddy_qc",
+    )
+    plot_eddy_qc_node.inputs.out_file = "eddy_qc_plot.png"
+    workflow.connect(
+        [
+            (
+                inputnode,
+                plot_eddy_qc_node,
+                [
+                    ("eddy_qc", "eddy_qc"),
+                ],
+            ),
+            (
+                plot_eddy_qc_node,
+                outputnode,
+                [
+                    ("out_file", "eddy_qc_plot"),
+                ],
+            ),
+        ]
     )
 
     mrconvert_dwi = pe.Node(

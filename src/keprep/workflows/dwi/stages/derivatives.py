@@ -54,6 +54,7 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
                 "coreg_report",
                 "unsifted_tck",
                 "sifted_tck",
+                "eddy_qc_plot",
             ]
         ),
         name="inputnode",
@@ -66,6 +67,18 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
             function=_eddy_qc_dds,
         ),
         name="ds_eddy_qc",
+        run_without_submitting=True,
+    )
+
+    ds_eddy_qc_plot = pe.Node(
+        DerivativesDataSink(
+            base_directory=output_dir,
+            desc="eddyqc",
+            suffix="dwi",
+            datatype="figures",
+            dismiss_entities=["direction"],
+        ),
+        name="ds_eddy_qc_plot",
         run_without_submitting=True,
     )
 
@@ -200,6 +213,11 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
                 ds_dwi_preproc,
                 ds_eddy_qc,
                 [("out_file", "source_file")],
+            ),
+            (
+                inputnode,
+                ds_eddy_qc_plot,
+                [("eddy_qc_plot", "in_file"), ("source_file", "source_file")],
             ),
             (
                 inputnode,

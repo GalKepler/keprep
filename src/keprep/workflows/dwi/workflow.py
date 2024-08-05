@@ -227,6 +227,7 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
                 post_eddy,
                 [
                     ("outputnode.dwi_preproc", "inputnode.dwi_preproc"),
+                    ("outputnode.eddy_qc", "inputnode.eddy_qc"),
                 ],
             ),
         ]
@@ -337,6 +338,7 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
                         "outputnode.dwi_reference_json",
                         "inputnode.dwi_reference_json",
                     ),
+                    ("outputnode.eddy_qc_plot", "inputnode.eddy_qc_plot"),
                 ],
             ),
             (
