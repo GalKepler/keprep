@@ -59,7 +59,7 @@ def init_post_eddy_wf(name: str = "post_eddy_wf") -> pe.Workflow:
         ),
         name="plot_eddy_qc",
     )
-    plot_eddy_qc_node.inputs.out_file = "eddy_qc_plot.png"
+    plot_eddy_qc_node.inputs.out_file = "eddy_qc_plot.svg"
     workflow.connect(
         [
             (

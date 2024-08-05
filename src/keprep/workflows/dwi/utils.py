@@ -53,6 +53,7 @@ def plot_eddy_qc(
     dpi : int, optional
         dpi of the plot (default: 300)
     """
+    import os
     from pathlib import Path
 
     import matplotlib.pyplot as plt
@@ -149,6 +150,7 @@ def plot_eddy_qc(
     plt.tight_layout()
 
     # save the plot with transparent background
+    out_file = os.getcwd() + "/" + out_file
     plt.savefig(out_file, dpi=dpi, bbox_inches="tight", transparent=True)
     plt.close()
 

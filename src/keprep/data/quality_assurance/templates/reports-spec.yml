@@ -42,6 +42,9 @@ sections:
     caption: b=0 to anatomical reference registration
     subtitle: Coregistration of the DWI to the anatomical T1w image using FSL's <code>FLIRT</code>.
     static: false
+  - bids: {datatype: figures, desc: eddyqc, suffix: dwi}
+    caption: EDDY Quality Control
+    subtitle: QC for head motion correction as conducted by FSL's <code>EDDY</code>.
 
 
 - name: About
