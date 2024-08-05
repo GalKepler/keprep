@@ -82,7 +82,7 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
         config.workflow.denoise_method == "dwidenoise"
         and config.workflow.dwi_denoise_window == "auto"
     ):
-        dwi_denoise_window = calculate_denoise_window(dwi_file)  # type: ignore[arg-type]
+        dwi_denoise_window = calculate_denoise_window(dwi_file)  # type: ignore[arg-type] # noqa: E501
 
     bo_to_t1w = "Rigid" if config.workflow.dwi2t1w_dof == 6 else "Affine"
     summary = pe.Node(
@@ -110,7 +110,7 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
     # Reporting
     ds_report_summary = pe.Node(
         DerivativesDataSink(
-            base_directory=str(config.execution.keprep_dir),  # type: ignore[attr-defined]
+            base_directory=str(config.execution.keprep_dir),  # type: ignore[attr-defined] # noqa: E501
             datatype="figures",
             suffix="dwi",
             desc="summary",

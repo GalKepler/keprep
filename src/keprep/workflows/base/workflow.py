@@ -237,8 +237,8 @@ def init_single_subject_wf(subject_id: str):
 
     summary = pe.Node(
         SubjectSummary(
-            std_spaces=spaces.get_spaces(nonstandard=False),  # type: ignore[attr-defined]
-            nstd_spaces=spaces.get_spaces(standard=False),  # type: ignore[attr-defined]
+            std_spaces=spaces.get_spaces(nonstandard=False),  # type: ignore[attr-defined] # noqa: E501
+            nstd_spaces=spaces.get_spaces(standard=False),  # type: ignore[attr-defined] # noqa: E501
         ),
         name="summary",
         run_without_submitting=True,
@@ -252,7 +252,7 @@ def init_single_subject_wf(subject_id: str):
 
     ds_report_summary = pe.Node(
         DerivativesDataSink(
-            base_directory=str(config.execution.keprep_dir),  # type: ignore[attr-defined]
+            base_directory=str(config.execution.keprep_dir),  # type: ignore[attr-defined] # noqa: E501
             desc="summary",
             datatype="figures",
         ),
@@ -262,7 +262,7 @@ def init_single_subject_wf(subject_id: str):
 
     ds_report_about = pe.Node(
         DerivativesDataSink(
-            base_directory=str(config.execution.keprep_dir),  # type: ignore[attr-defined]
+            base_directory=str(config.execution.keprep_dir),  # type: ignore[attr-defined] # noqa: E501
             desc="about",
             datatype="figures",
         ),

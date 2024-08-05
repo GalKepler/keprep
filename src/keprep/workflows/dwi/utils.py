@@ -64,9 +64,9 @@ def plot_eddy_qc(
     sns.set_context("paper", font_scale=1.5)
     sns.set_palette("bright")
 
-    eddy_qc = Path(eddy_qc)
-    params = np.genfromtxt(eddy_qc / "eddy_parameters", dtype=float)
-    motion = np.genfromtxt(eddy_qc / "eddy_movement_rms", dtype=float)
+    eddy_qc = Path(eddy_qc)  # type: ignore[assignment]
+    params = np.genfromtxt(eddy_qc / "eddy_parameters", dtype=float)  # type: ignore[type-var, operator] # noqa: E501
+    motion = np.genfromtxt(eddy_qc / "eddy_movement_rms", dtype=float)  # type: ignore[type-var, operator] # noqa: E501
 
     df_params = pd.DataFrame(
         {
@@ -117,13 +117,13 @@ def plot_eddy_qc(
             x="volume",
             y="displacement",
             hue="direction",
-            ax=axes[i],
+            ax=axes[i],  # type: ignore[index]
             palette={"x": "r", "y": "g", "z": "b"},
             linewidth=2,
         )
-        axes[i].set_xlabel("Volume")
-        axes[i].set_ylabel(fig_props[movement_type]["ylabel"])
-        axes[i].set_title(
+        axes[i].set_xlabel("Volume")  # type: ignore[index]
+        axes[i].set_ylabel(fig_props[movement_type]["ylabel"])  # type: ignore[index]
+        axes[i].set_title(  # type: ignore[index]
             fig_props[movement_type]["title"], fontweight="bold", fontsize=20
         )
 
@@ -137,15 +137,15 @@ def plot_eddy_qc(
         x="Volume",
         y="Displacement",
         hue="Type",
-        ax=axes[2],
+        ax=axes[2],  # type: ignore[index]
         linewidth=2,
         palette={"Absolute": "r", "Relative": "b"},
     )
-    axes[2].set_xlabel("Volume")
-    axes[2].set_ylabel("Displacement [mm]")
-    axes[2].set_title("Estimated mean displacement", fontweight="bold", fontsize=20)
-    axes[2].legend(loc="best", frameon=True, framealpha=0.5)
-    axes[2].set_ylim(0, 0.5 + np.max(df_motion["Displacement"]))
+    axes[2].set_xlabel("Volume")  # type: ignore[index]
+    axes[2].set_ylabel("Displacement [mm]")  # type: ignore[index]
+    axes[2].set_title("Estimated mean displacement", fontweight="bold", fontsize=20)  # type: ignore[index] # noqa: E501
+    axes[2].legend(loc="best", frameon=True, framealpha=0.5)  # type: ignore[index]
+    axes[2].set_ylim(0, 0.5 + np.max(df_motion["Displacement"]))  # type: ignore[index]
     plt.tight_layout()
 
     # save the plot with transparent background

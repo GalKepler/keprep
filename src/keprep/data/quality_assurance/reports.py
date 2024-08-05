@@ -141,7 +141,8 @@ def generate_reports(
                     subject=subject_label,
                     session=session_label,
                 )
-                # If the report generation failed, append the subject label for which it failed
+                # If the report generation failed,
+                # append the subject label for which it failed
                 if report_error is not None:
                     errors.append(report_error)
 
