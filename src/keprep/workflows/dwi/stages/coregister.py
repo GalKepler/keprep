@@ -2,8 +2,10 @@ import nipype.pipeline.engine as pe
 from nipype.interfaces import fsl
 from nipype.interfaces import mrtrix3 as mrt
 from nipype.interfaces import utility as niu
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from keprep import config
+from keprep.workflows.dwi.descriptions.coregister import COREG_EPIREG, COREG_FLIRT
 
 
 def init_dwi_coregister_wf(name: str = "dwi_coregister_wf") -> pe.Workflow:
@@ -20,7 +22,7 @@ def init_dwi_coregister_wf(name: str = "dwi_coregister_wf") -> pe.Workflow:
     pe.Workflow
         the workflow
     """
-    workflow = pe.Workflow(name=name)
+    workflow = Workflow(name=name)
     inputnode = pe.Node(
         niu.IdentityInterface(
             fields=[
@@ -54,20 +56,6 @@ def init_dwi_coregister_wf(name: str = "dwi_coregister_wf") -> pe.Workflow:
         name="apply_mask",
     )
 
-    filrt_node = pe.Node(
-        fsl.FLIRT(
-            dof=config.workflow.dwi2t1w_dof,
-            out_file="dwi2t1w.nii.gz",
-            out_matrix_file="dwi2t1w.mat",
-            searchr_x=[-90, 90],
-            searchr_y=[-90, 90],
-            searchr_z=[-90, 90],
-            cost="normmi",
-            bins=256,
-        ),
-        name="filrt_node",
-    )
-
     convert_xfm = pe.Node(
         fsl.ConvertXFM(
             invert_xfm=True,
@@ -84,57 +72,124 @@ def init_dwi_coregister_wf(name: str = "dwi_coregister_wf") -> pe.Workflow:
         ),
         name="apply_xfm",
     )
+    if config.workflow.dwi2t1w_method == "epireg":
+        coreg_node = pe.Node(fsl.EpiReg(), name="epireg_node")
+        workflow.__desc__ = COREG_EPIREG
+        workflow.connect(
+            [
+                (
+                    inputnode,
+                    apply_mask,
+                    [
+                        ("t1w_preproc", "in_file"),
+                        ("t1w_mask", "mask_file"),
+                    ],
+                ),
+                (
+                    inputnode,
+                    coreg_node,
+                    [("dwi_reference", "epi"), ("t1w_preproc", "t1_head")],
+                ),
+                (
+                    coreg_node,
+                    outputnode,
+                    [
+                        ("out_file", "dwi_in_t1w"),
+                    ],
+                ),
+                (
+                    apply_mask,
+                    coreg_node,
+                    [
+                        ("out_file", "t1_brain"),
+                    ],
+                ),
+                (
+                    coreg_node,
+                    convert_xfm,
+                    [
+                        ("epi2str_mat", "in_file"),
+                    ],
+                ),
+                (
+                    coreg_node,
+                    outputnode,
+                    [
+                        ("epi2str_mat", "dwi2t1w_aff"),
+                    ],
+                ),
+            ]
+        )
+    elif config.workflow.dwi2t1w_method == "flirt":
+        coreg_node = pe.Node(
+            fsl.FLIRT(
+                dof=config.workflow.dwi2t1w_dof,
+                out_file="dwi2t1w.nii.gz",
+                out_matrix_file="dwi2t1w.mat",
+                searchr_x=[-90, 90],
+                searchr_y=[-90, 90],
+                searchr_z=[-90, 90],
+                cost="normmi",
+                bins=256,
+            ),
+            name="flirt_node",
+        )
+        workflow.__desc__ = COREG_FLIRT.format(dof=config.workflow.dwi2t1w_dof)
+        workflow.connect(
+            [
+                (
+                    inputnode,
+                    apply_mask,
+                    [
+                        ("t1w_preproc", "in_file"),
+                        ("t1w_mask", "mask_file"),
+                    ],
+                ),
+                (
+                    inputnode,
+                    coreg_node,
+                    [
+                        ("dwi_reference", "in_file"),
+                    ],
+                ),
+                (
+                    coreg_node,
+                    outputnode,
+                    [
+                        ("out_file", "dwi_in_t1w"),
+                    ],
+                ),
+                (
+                    apply_mask,
+                    coreg_node,
+                    [
+                        ("out_file", "reference"),
+                    ],
+                ),
+                (
+                    coreg_node,
+                    convert_xfm,
+                    [
+                        ("out_matrix_file", "in_file"),
+                    ],
+                ),
+                (
+                    coreg_node,
+                    outputnode,
+                    [
+                        ("out_matrix_file", "dwi2t1w_aff"),
+                    ],
+                ),
+            ]
+        )
 
     workflow.connect(
         [
-            (
-                inputnode,
-                apply_mask,
-                [
-                    ("t1w_preproc", "in_file"),
-                    ("t1w_mask", "mask_file"),
-                ],
-            ),
-            (
-                inputnode,
-                filrt_node,
-                [
-                    ("dwi_reference", "in_file"),
-                ],
-            ),
-            (
-                filrt_node,
-                outputnode,
-                [
-                    ("out_file", "dwi_in_t1w"),
-                ],
-            ),
-            (
-                apply_mask,
-                filrt_node,
-                [
-                    ("out_file", "reference"),
-                ],
-            ),
-            (
-                filrt_node,
-                convert_xfm,
-                [
-                    ("out_matrix_file", "in_file"),
-                ],
-            ),
             (
                 convert_xfm,
                 outputnode,
                 [
                     ("out_file", "t1w2dwi_aff"),
-                ],
-            ),
-            (
-                filrt_node,
-                outputnode,
-                [
-                    ("out_matrix_file", "dwi2t1w_aff"),
                 ],
             ),
             (
