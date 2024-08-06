@@ -108,7 +108,6 @@ def init_keprep_wf():
         )
         log_dir.mkdir(exist_ok=True, parents=True)
         config.to_filename(log_dir / "keprep.toml")
-
     return keprep_wf
 
 
