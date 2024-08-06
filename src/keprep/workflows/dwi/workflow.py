@@ -3,11 +3,17 @@ from pathlib import Path
 from bids import BIDSLayout
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from keprep import config
 from keprep.interfaces.bids import get_fieldmap
 from keprep.interfaces.bids.bids import DerivativesDataSink
 from keprep.interfaces.reports.reports import DiffusionSummary
+from keprep.workflows.dwi.descriptions.base import (
+    DENOISING,
+    DIFFUSION_WORKFLOW_DESCRIPTION_MULTI_SESSIONS,
+    DIFFUSION_WORKFLOW_DESCRIPTION_SINGLE_SESSION,
+)
 from keprep.workflows.dwi.stages.coregister import init_dwi_coregister_wf
 from keprep.workflows.dwi.stages.derivatives import init_derivatives_wf
 from keprep.workflows.dwi.stages.eddy import init_eddy_wf
@@ -38,7 +44,7 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
         raise FileNotFoundError(f"No fieldmap found for <{dwi_file}>")
 
     # Build workflow
-    workflow = pe.Workflow(name=_get_wf_name(dwi_file))
+    workflow = Workflow(name=_get_wf_name(dwi_file))
 
     inputnode = pe.Node(
         niu.IdentityInterface(
@@ -70,7 +76,6 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
     inputnode.inputs.fmap_bvec = Path(layout.get_bvec(fieldmap))
     inputnode.inputs.fmap_bval = Path(layout.get_bval(fieldmap))
     inputnode.inputs.fmap_json = Path(layout.get_nearest(fieldmap, extension="json"))
-
     outputnode = pe.Node(  # noqa: F841
         niu.IdentityInterface(
             fields=["dwi_preproc", "dwi_reference", "dwi_mask"],
@@ -83,6 +88,15 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
         and config.workflow.dwi_denoise_window == "auto"
     ):
         dwi_denoise_window = calculate_denoise_window(dwi_file)  # type: ignore[arg-type] # noqa: E501
+    n_dwis = len(subject_data["dwi"])
+    desc = (
+        DIFFUSION_WORKFLOW_DESCRIPTION_MULTI_SESSIONS
+        if n_dwis > 1
+        else DIFFUSION_WORKFLOW_DESCRIPTION_SINGLE_SESSION
+    )
+    workflow.__desc__ = desc.format(n_dwi=n_dwis) + DENOISING.format(
+        b0_threshold=config.workflow.b0_threshold, denoise_window=dwi_denoise_window
+    )
 
     bo_to_t1w = "Rigid" if config.workflow.dwi2t1w_dof == 6 else "Affine"
     summary = pe.Node(
@@ -152,6 +166,7 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
         ),
         name="fmap_mifconv",
     )
+
     workflow.connect(
         [
             (

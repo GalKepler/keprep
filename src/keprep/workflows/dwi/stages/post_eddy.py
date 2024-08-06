@@ -1,9 +1,11 @@
 import nipype.pipeline.engine as pe
 from nipype.interfaces import mrtrix3 as mrt
 from nipype.interfaces import utility as niu
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from keprep import config
 from keprep.interfaces.mrtrix3 import MRConvert
+from keprep.workflows.dwi.descriptions.post_eddy import DWIBIASCORRECT
 from keprep.workflows.dwi.stages.extract_b0 import init_extract_b0_wf
 from keprep.workflows.dwi.utils import plot_eddy_qc
 
@@ -22,8 +24,8 @@ def init_post_eddy_wf(name: str = "post_eddy_wf") -> pe.Workflow:
     pe.Workflow
         the workflow
     """
-    workflow = pe.Workflow(name=name)
-
+    workflow = Workflow(name=name)
+    workflow.__desc__ = DWIBIASCORRECT
     inputnode = pe.Node(
         niu.IdentityInterface(
             fields=[

@@ -477,10 +477,12 @@ class workflow(_Config):
     """Window size in voxels for image-based denoising, integer or "auto"."""
     dwi_no_biascorr = False
     """DEPRECATED: see --b1-biascorrect-stage."""
-    eddy_config = "--fwhm=0 --flm='quadratic'"
+    eddy_config = "--fwhm=0 --flm='quadratic' --repol"
     """Configuration for running Eddy."""
     hmc_model = "eddy"
     """Model used to generate target images for hmc."""
+    b0_threshold = 100
+    """any value in the .bval file less than this will be considered a b=0 image."""
 
 
 class loggers:

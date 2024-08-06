@@ -19,7 +19,6 @@ from keprep.workflows.base.messages import (
     ANAT_DERIVATIVES_FAILED,
     BASE_POSTDESC,
     BASE_WORKFLOW_DESCRIPTION,
-    DIFFUSION_WORKFLOW_DESCRIPTION,
 )
 from keprep.workflows.dwi.workflow import init_dwi_preproc_wf
 
@@ -325,9 +324,6 @@ def init_single_subject_wf(subject_id: str):
 
     for dwi_file in subject_data["dwi"]:
         dwi_preproc_wf = init_dwi_preproc_wf(dwi_file, subject_data)
-        dwi_preproc_wf.__desc__ = DIFFUSION_WORKFLOW_DESCRIPTION.format(
-            n_dwi=len(subject_data["dwi"])
-        )
         workflow.connect(
             [
                 (

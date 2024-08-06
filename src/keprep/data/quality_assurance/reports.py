@@ -22,9 +22,93 @@
 #
 from pathlib import Path
 
+from nipype.pipeline import engine as pe
 from nireports.assembler.report import Report
 
 from keprep import config, data
+
+
+def build_boilerplate(config_file: dict | str | Path, workflow: pe.Workflow):
+    """Write boilerplate in an isolated process."""
+    from keprep import config
+
+    if isinstance(config_file, str) or isinstance(config_file, Path):
+        config.load(config_file)
+    elif isinstance(config_file, dict):
+        config.from_dict(config_file)
+    logs_path = config.execution.keprep_dir / "logs"  # type: ignore[attr-defined]
+    logs_path.mkdir(parents=True, exist_ok=True)
+    boilerplate = workflow.visit_desc()
+    citation_files = {
+        ext: logs_path / f"CITATION.{ext}" for ext in ("bib", "tex", "md", "html")
+    }
+
+    if boilerplate:
+        # To please git-annex users and also to guarantee consistency
+        # among different renderings of the same file, first remove any
+        # existing one
+        for citation_file in citation_files.values():
+            try:
+                citation_file.unlink()
+            except FileNotFoundError:
+                pass
+
+    citation_files["md"].write_text(boilerplate)
+
+    if citation_files["md"].exists():
+        from subprocess import CalledProcessError, TimeoutExpired, check_call
+
+        from keprep import data
+
+        bib_text = data.load.readable("boilerplate.bib").read_text()
+        citation_files["bib"].write_text(
+            bib_text.replace("KePrep <version>", f"KePrep {config.environment.version}")
+        )
+
+        # Generate HTML file resolving citations
+        cmd = [
+            "pandoc",
+            "-s",
+            "--bibliography",
+            str(citation_files["bib"]),
+            "--citeproc",
+            "--metadata",
+            'pagetitle="fMRIPrep citation boilerplate"',
+            str(citation_files["md"]),
+            "-o",
+            str(citation_files["html"]),
+        ]
+
+        config.loggers.cli.info(
+            "Generating an HTML version of the citation boilerplate..."
+        )
+        try:
+            check_call(cmd, timeout=10)
+        except (FileNotFoundError, CalledProcessError, TimeoutExpired):
+            config.loggers.cli.warning(
+                "Could not generate CITATION.html file:\n%s", " ".join(cmd)
+            )
+
+        # Generate LaTex file resolving citations
+        cmd = [
+            "pandoc",
+            "-s",
+            "--bibliography",
+            str(citation_files["bib"]),
+            "--natbib",
+            str(citation_files["md"]),
+            "-o",
+            str(citation_files["tex"]),
+        ]
+        config.loggers.cli.info(
+            "Generating a LaTeX version of the citation boilerplate..."
+        )
+        try:
+            check_call(cmd, timeout=10)
+        except (FileNotFoundError, CalledProcessError, TimeoutExpired):
+            config.loggers.cli.warning(
+                "Could not generate CITATION.tex file:\n%s", " ".join(cmd)
+            )
 
 
 def run_reports(

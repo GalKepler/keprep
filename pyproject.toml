@@ -96,4 +96,4 @@ omit = [
 
 [tool.flake8]
 max-line-length = 88
-per-file-ignores = ["src/keprep/config.py:E501", "src/keprep/interfaces/*.py:E501"]
+per-file-ignores = ["src/keprep/config.py:E501", "src/keprep/workflows/dwi/descriptions/*.py:E501","src/keprep/interfaces/*.py:E501"]

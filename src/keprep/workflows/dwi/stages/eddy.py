@@ -1,9 +1,11 @@
 import nipype.pipeline.engine as pe
 from nipype.interfaces import mrtrix3 as mrt
 from nipype.interfaces import utility as niu
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from keprep import config
 from keprep.interfaces.mrtrix3 import DWIPreproc
+from keprep.workflows.dwi.descriptions.eddy import RPE_DESCRIPTION, RPE_DWIFSLPREPROC
 from keprep.workflows.dwi.stages.extract_b0 import init_extract_b0_wf
 from keprep.workflows.dwi.utils import read_field_from_json
 
@@ -22,8 +24,8 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
     pe.Workflow
         the workflow
     """
-    workflow = pe.Workflow(name=name)
-
+    workflow = Workflow(name=name)
+    workflow.__desc__ = RPE_DESCRIPTION + RPE_DWIFSLPREPROC
     inputnode = pe.Node(
         niu.IdentityInterface(
             fields=[
