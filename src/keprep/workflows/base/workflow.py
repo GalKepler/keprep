@@ -1,4 +1,5 @@
 import os
+import sys
 import warnings
 from copy import deepcopy
 from pathlib import Path
@@ -8,6 +9,12 @@ from nipype.pipeline import engine as pe
 from packaging.version import Version
 
 from keprep import config
+from keprep.interfaces.bids import (
+    DerivativesDataSink,
+    write_bidsignore,
+    write_derivative_description,
+)
+from keprep.interfaces.reports import AboutSummary, SubjectSummary
 from keprep.workflows.base.messages import (
     ANAT_DERIVATIVES_FAILED,
     BASE_POSTDESC,
@@ -48,22 +55,29 @@ def init_keprep_wf():
     keprep_wf = Workflow(name=f"keprep_{ver.major}_{ver.minor}_{ver.micro}_wf")
     keprep_wf.base_dir = config.execution.work_dir
 
+    # Write BIDS-required files (dataset_description.json, ...)
+    write_derivative_description(
+        config.execution.bids_dir,
+        config.execution.keprep_dir,
+    )
+    write_bidsignore(config.execution.keprep_dir)
+
     freesurfer = config.workflow.do_reconall
     if freesurfer:
         fsdir = pe.Node(
             BIDSFreeSurferDir(
                 derivatives=config.execution.output_dir,
                 freesurfer_home=os.getenv("FREESURFER_HOME"),
-                spaces=config.workflow.spaces.get_fs_spaces(),  # type: ignore[attr-defined]
+                spaces=config.workflow.spaces.get_fs_spaces(),  # type: ignore[attr-defined] # noqa: E501
                 minimum_fs_version="7.0.0",
             ),
             name=f"fsdir_run_{config.execution.run_uuid.replace('-', '_')}",
             run_without_submitting=True,
         )
         if config.execution.fs_subjects_dir is not None:
-            fsdir.inputs.subjects_dir = str(config.execution.fs_subjects_dir.absolute())  # type: ignore[unreachable]
+            fsdir.inputs.subjects_dir = str(config.execution.fs_subjects_dir.absolute())  # type: ignore[unreachable] # noqa: E501
 
-    participants: list = config.execution.participant_label  # type: ignore[assignment]  # pylint: disable=not-an-iterable
+    participants: list = config.execution.participant_label  # type: ignore[assignment]  # pylint: disable=not-an-iterable # noqa: E501
     for subject_id in list(participants):
         single_subject_wf = init_single_subject_wf(subject_id)  # type: ignore[operator]
 
@@ -94,7 +108,6 @@ def init_keprep_wf():
         )
         log_dir.mkdir(exist_ok=True, parents=True)
         config.to_filename(log_dir / "keprep.toml")
-
     return keprep_wf
 
 
@@ -159,7 +172,7 @@ def init_single_subject_wf(subject_id: str):
         )
 
     if anat_derivatives:
-        from smriprep.utils.bids import (  # type: ignore[unreachable] # pylint: disable=import-outside-toplevel,import-error
+        from smriprep.utils.bids import (  # type: ignore[unreachable] # pylint: disable=import-outside-toplevel,import-error # noqa: E501
             collect_derivatives,
         )
 
@@ -220,6 +233,41 @@ def init_single_subject_wf(subject_id: str):
         name="bids_info",
     )
 
+    summary = pe.Node(
+        SubjectSummary(
+            std_spaces=spaces.get_spaces(nonstandard=False),  # type: ignore[attr-defined] # noqa: E501
+            nstd_spaces=spaces.get_spaces(standard=False),  # type: ignore[attr-defined] # noqa: E501
+        ),
+        name="summary",
+        run_without_submitting=True,
+    )
+
+    about = pe.Node(
+        AboutSummary(version=config.environment.version, command=" ".join(sys.argv)),
+        name="about",
+        run_without_submitting=True,
+    )
+
+    ds_report_summary = pe.Node(
+        DerivativesDataSink(
+            base_directory=str(config.execution.keprep_dir),  # type: ignore[attr-defined] # noqa: E501
+            desc="summary",
+            datatype="figures",
+        ),
+        name="ds_report_summary",
+        run_without_submitting=True,
+    )
+
+    ds_report_about = pe.Node(
+        DerivativesDataSink(
+            base_directory=str(config.execution.keprep_dir),  # type: ignore[attr-defined] # noqa: E501
+            desc="about",
+            datatype="figures",
+        ),
+        name="ds_report_about",
+        run_without_submitting=True,
+    )
+
     # Preprocessing of T1w (includes registration to MNI)
     anat_preproc_wf = init_anat_preproc_wf(
         bids_root=str(config.execution.bids_dir),
@@ -240,6 +288,7 @@ def init_single_subject_wf(subject_id: str):
         t2w=subject_data["t2w"],
         cifti_output=config.workflow.cifti_output,
     )
+    anat_preproc_wf.__desc__ = f"\n\n{anat_preproc_wf.__desc__}"
     # fmt:off
     workflow.connect([
         (inputnode, anat_preproc_wf, [('subjects_dir', 'inputnode.subjects_dir')]),
@@ -248,16 +297,21 @@ def init_single_subject_wf(subject_id: str):
                                     ('t2w', 'inputnode.t2w'),
                                     ('roi', 'inputnode.roi'),
                                     ('flair', 'inputnode.flair')]),
+        (bidssrc, bids_info, [(('t1w', fix_multi_T1w_source_name), 'in_file')]),
+        (inputnode, summary, [('subjects_dir', 'subjects_dir')]),
+        (bids_info, summary, [('subject', 'subject_id')]),
+        (bidssrc, summary, [('t1w', 't1w'),
+                            ('t2w', 't2w'),
+                            ('dwi', 'dwi')]),
+        (bidssrc, ds_report_summary, [
+            (("t1w", fix_multi_T1w_source_name), "source_file"),
+        ]),
+        (summary, ds_report_summary, [("out_report", "in_file")]),
+        (bidssrc, ds_report_about, [
+            (("t1w", fix_multi_T1w_source_name), "source_file")
+        ]),
+        (about, ds_report_about, [("out_report", "in_file")]),
     ])
-
-    if not anat_derivatives:
-        workflow.connect([
-            (bidssrc, bids_info, [(('t1w', fix_multi_T1w_source_name), 'in_file')]),
-        ])
-    else:
-        workflow.connect([ # type: ignore[unreachable]
-            (bidssrc, bids_info, [(('dwi', fix_multi_T1w_source_name), 'in_file')]),
-        ])
 
     # Overwrite ``out_path_base`` of smriprep's DataSinks
     for node in workflow.list_node_names():

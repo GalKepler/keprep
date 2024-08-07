@@ -254,7 +254,7 @@ class nipype(_Config):
     memory_gb = None
     """Estimation in GB of the RAM this workflow can allocate at any given time."""
     nprocs = os.cpu_count()
-    """Number of processes (compute tasks) that can be run in parallel (multiprocessing only)."""  # noqa: C0301
+    """Number of processes (compute tasks) that can be run in parallel (multiprocessing only)."""  # noqa: E501
     omp_nthreads = None
     """Number of CPUs a single process can access for multithreaded execution."""
     plugin = "MultiProc"
@@ -342,6 +342,8 @@ class execution(_Config):
     """FreeSurfer's subjects directory."""
     layout = None
     """A :py:class:`~keprep.bids.layout.QSIPrepLayout` object, see :py:func:`init`."""
+    reportlets_dir = None
+    """Path to a directory where reportlets will be stored."""
     log_dir = None
     """The path to a directory that contains execution logs."""
     log_level = 25
@@ -424,6 +426,9 @@ class execution(_Config):
             cls.participant_label = cls.layout.get_subjects()
         else:
             cls.participant_label = list(cls.participant_label)
+        if cls.reportlets_dir is None:
+            cls.reportlets_dir = Path(cls.work_dir) / "reportlets"
+        cls.reportlets_dir.mkdir(exist_ok=True, parents=True)  # type: ignore[union-attr]
 
 
 # These variables are not necessary anymore
@@ -442,6 +447,10 @@ class workflow(_Config):
 
     anat_only = False
     """Execute the anatomical preprocessing only."""
+    dwi2t1w_method = "epireg"
+    """
+    Method to use for DWI-to-T1w coregistration. Either "epireg" (default) or "flirt"
+    """
     dwi2t1w_dof = 6
     """Degrees of freedom of the DWI-to-T1w registration steps."""
     dwi2t1w_init = "register"
@@ -465,6 +474,19 @@ class workflow(_Config):
     skull_strip_t1w = "force"
     """Skip brain extraction of the T1w image (default is ``force``, meaning that
     *KePrep* will run brain extraction of the T1w)."""
+    denoise_method = "dwidenoise"
+    """Image-based denoising method. Either "dwidenoise" (MRtrix), "patch2self" (DIPY)
+    or "none"."""
+    dwi_denoise_window = "auto"
+    """Window size in voxels for image-based denoising, integer or "auto"."""
+    dwi_no_biascorr = False
+    """DEPRECATED: see --b1-biascorrect-stage."""
+    eddy_config = "--fwhm=0 --flm='quadratic' --repol"
+    """Configuration for running Eddy."""
+    hmc_model = "eddy"
+    """Model used to generate target images for hmc."""
+    b0_threshold = 100
+    """any value in the .bval file less than this will be considered a b=0 image."""
 
 
 class loggers:

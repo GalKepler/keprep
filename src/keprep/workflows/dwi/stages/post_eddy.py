@@ -1,10 +1,13 @@
 import nipype.pipeline.engine as pe
 from nipype.interfaces import mrtrix3 as mrt
 from nipype.interfaces import utility as niu
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from keprep import config
 from keprep.interfaces.mrtrix3 import MRConvert
+from keprep.workflows.dwi.descriptions.post_eddy import DWIBIASCORRECT
 from keprep.workflows.dwi.stages.extract_b0 import init_extract_b0_wf
+from keprep.workflows.dwi.utils import plot_eddy_qc
 
 
 def init_post_eddy_wf(name: str = "post_eddy_wf") -> pe.Workflow:
@@ -21,12 +24,13 @@ def init_post_eddy_wf(name: str = "post_eddy_wf") -> pe.Workflow:
     pe.Workflow
         the workflow
     """
-    workflow = pe.Workflow(name=name)
-
+    workflow = Workflow(name=name)
+    workflow.__desc__ = DWIBIASCORRECT
     inputnode = pe.Node(
         niu.IdentityInterface(
             fields=[
                 "dwi_preproc",
+                "eddy_qc",
             ]
         ),
         name="inputnode",
@@ -43,18 +47,38 @@ def init_post_eddy_wf(name: str = "post_eddy_wf") -> pe.Workflow:
                 "dwi_json",
                 "dwi_reference",
                 "dwi_reference_json",
+                "eddy_qc_plot",
             ]
         ),
         name="outputnode",
     )
 
-    bias_correct = pe.Node(
-        mrt.DWIBiasCorrect(
-            out_file="bias_corrected.mif",
-            use_ants=True,
-            nthreads=config.nipype.omp_nthreads,
+    plot_eddy_qc_node = pe.Node(
+        niu.Function(
+            input_names=["eddy_qc", "out_file"],
+            output_names=["out_file"],
+            function=plot_eddy_qc,
         ),
-        name="bias_correct",
+        name="plot_eddy_qc",
+    )
+    plot_eddy_qc_node.inputs.out_file = "eddy_qc_plot.svg"
+    workflow.connect(
+        [
+            (
+                inputnode,
+                plot_eddy_qc_node,
+                [
+                    ("eddy_qc", "eddy_qc"),
+                ],
+            ),
+            (
+                plot_eddy_qc_node,
+                outputnode,
+                [
+                    ("out_file", "eddy_qc_plot"),
+                ],
+            ),
+        ]
     )
 
     mrconvert_dwi = pe.Node(
@@ -68,30 +92,60 @@ def init_post_eddy_wf(name: str = "post_eddy_wf") -> pe.Workflow:
         ),
         name="mrconvert_dwi",
     )
+    if config.workflow.dwi_no_biascorr:
+        workflow.connect(
+            [
+                (
+                    inputnode,
+                    mrconvert_dwi,
+                    [
+                        ("dwi_preproc", "in_file"),
+                    ],
+                ),
+                (
+                    inputnode,
+                    outputnode,
+                    [("dwi_preproc", "dwi_mif")],
+                ),
+            ]
+        )
+    else:
+        bias_correct = pe.Node(
+            mrt.DWIBiasCorrect(
+                out_file="bias_corrected.mif",
+                use_ants=True,
+                nthreads=config.nipype.omp_nthreads,
+            ),
+            name="bias_correct",
+        )
+        workflow.connect(
+            [
+                (
+                    inputnode,
+                    bias_correct,
+                    [
+                        ("dwi_preproc", "in_file"),
+                    ],
+                ),
+                (
+                    bias_correct,
+                    mrconvert_dwi,
+                    [
+                        ("out_file", "in_file"),
+                    ],
+                ),
+                (
+                    bias_correct,
+                    outputnode,
+                    [
+                        ("out_file", "dwi_mif"),
+                    ],
+                ),
+            ]
+        )
 
     workflow.connect(
         [
-            (
-                inputnode,
-                bias_correct,
-                [
-                    ("dwi_preproc", "in_file"),
-                ],
-            ),
-            (
-                bias_correct,
-                mrconvert_dwi,
-                [
-                    ("out_file", "in_file"),
-                ],
-            ),
-            (
-                bias_correct,
-                outputnode,
-                [
-                    ("out_file", "dwi_mif"),
-                ],
-            ),
             (
                 mrconvert_dwi,
                 outputnode,

@@ -13,7 +13,7 @@ Overview
     * - docs
       - |docs|
     * - tests, CI & coverage
-      - |github-actions| |codecov| |codacy|
+      - |github-actions| |circleci| |codecov| |codacy|
     * - codeclimate
       - |codeclimate-maintainability| |codeclimate-testcoverage|
     * - version
@@ -30,6 +30,10 @@ Overview
 .. |github-actions| image:: https://github.com/GalKepler/keprep/actions/workflows/github-actions.yml/badge.svg
     :alt: GitHub Actions Build Status
     :target: https://github.com/GalKepler/keprep/actions
+
+.. |circleci| image:: https://dl.circleci.com/status-badge/img/circleci/J6A3JWLZsHZMCMZ1aCKdXb/AVFefVDaX15sp62PZ8MpA9/tree/main.svg?style=svg
+    :alt: CircleCI Build Status
+    :target: https://dl.circleci.com/status-badge/redirect/circleci/J6A3JWLZsHZMCMZ1aCKdXb/AVFefVDaX15sp62PZ8MpA9/tree/main
 
 .. |codecov| image:: https://codecov.io/github/GalKepler/keprep/graph/badge.svg?token=LO5CH471O4
     :alt: Coverage Status
