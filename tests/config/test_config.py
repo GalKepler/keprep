@@ -16,9 +16,13 @@ if not _fs_license and os.getenv("FREESURFER_HOME"):
 
 
 @pytest.fixture
-def temp_dir():
-    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmpdirname:
-        yield Path(tmpdirname)
+def bids_dataset():
+    return Path(__file__).parent.parent / "data" / "bids_test"
+
+
+@pytest.fixture
+def bids_filters():
+    return Path(__file__).parent.parent / "data" / "bids_filters.json"
 
 
 def test_environment_config():
@@ -64,27 +68,27 @@ def test_seeds_config():
     assert config.seeds.numpy is None
 
 
-def test_from_dict(temp_dir):
-    bids_dir = temp_dir / "bids"
+def test_from_dict(bids_dataset):
+    bids_dir = bids_dataset
     bids_dir.mkdir(exist_ok=True, parents=True)
     settings = {
         "bids_dir": bids_dir,
-        "work_dir": temp_dir / "work",
+        "work_dir": bids_dataset.parent / "work",
         "nprocs": 4,
         "plugin": "Linear",
     }
     config.from_dict(settings, init=False)
-    assert config.execution.bids_dir == Path(temp_dir / "bids").absolute()
-    assert config.execution.work_dir == Path(temp_dir / "work").absolute()
+    assert config.execution.bids_dir == Path(bids_dataset).absolute()
+    assert config.execution.work_dir == Path(bids_dataset.parent / "work").absolute()
     assert config.nipype.nprocs == 4
     assert config.nipype.plugin == "Linear"
 
 
-def test_to_filename_load(temp_dir):
-    bids_dir = temp_dir / "bids"
-    work_dir = temp_dir / "work"
-    bids_dir.mkdir()
-    work_dir.mkdir()
+def test_to_filename_load(bids_dataset):
+    bids_dir = bids_dataset
+    work_dir = bids_dataset.parent / "work"
+    bids_dir.mkdir(exist_ok=True)
+    work_dir.mkdir(exist_ok=True)
 
     settings = {
         "bids_dir": bids_dir,

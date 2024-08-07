@@ -1,0 +1,7 @@
+filename	acq_time	operator	randstr
+anat/sub-test_ses-test_FLAIR.nii.gz	2022-11-29T15:55:16.232500	n/a	17dbad5e
+anat/sub-test_ses-test_ce-corrected_T1w.nii.gz	2022-11-29T15:57:13.622500	n/a	0963ae70
+anat/sub-test_ses-test_ce-uncorrected_T1w.nii.gz	2022-11-29T15:57:13.622500	n/a	6d2f1869
+anat/sub-test_ses-test_ce-uncorrected_T2w.nii.gz	2022-11-29T16:01:45.317500	n/a	785cb174
+dwi/sub-test_ses-test_dir-AP_dwi.nii.gz	2022-11-29T16:09:22.517500	n/a	daab7a3b
+dwi/sub-test_ses-test_dir-PA_dwi.nii.gz	2022-11-29T16:20:35.140000	n/a	5a23c0f8

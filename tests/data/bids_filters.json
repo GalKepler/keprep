@@ -1,0 +1,5 @@
+{
+    "fmap": {"datatype":"dwi","direction": "PA"},
+    "dwi": {"datatype":"dwi","direction": "AP"},
+    "t1w": {"datatype":"anat", "ceagent": "corrected"}
+}
