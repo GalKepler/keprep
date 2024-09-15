@@ -10,7 +10,7 @@ from keprep.workflows.dwi.stages.extract_b0 import init_extract_b0_wf
 from keprep.workflows.dwi.utils import read_field_from_json
 
 
-def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
+def init_eddy_wf(name: str = "eddy_wf", fieldmap_is_4d: bool = True) -> pe.Workflow:
     """
     Build the SDC and motion correction workflow.
 
@@ -45,7 +45,8 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
     )
 
     dwi_b0_extractor = init_extract_b0_wf(name="dwi_b0_extractor")
-    fmap_b0_extractor = init_extract_b0_wf(name="fmap_b0_extractor")
+    if fieldmap_is_4d:
+        fmap_b0_extractor = init_extract_b0_wf(name="fmap_b0_extractor")
 
     # node to listify opposite phase encoding directions
     listify_b0 = pe.Node(niu.Merge(2), name="listify_b0")
@@ -88,20 +89,6 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
                 ],
             ),
             (
-                inputnode,
-                fmap_b0_extractor,
-                [
-                    ("fmap_file", "inputnode.dwi_file"),
-                ],
-            ),
-            (
-                fmap_b0_extractor,
-                listify_b0,
-                [
-                    ("outputnode.dwi_reference", "in2"),
-                ],
-            ),
-            (
                 listify_b0,
                 prep_pe_pair,
                 [
@@ -110,6 +97,37 @@ def init_eddy_wf(name: str = "eddy_wf") -> pe.Workflow:
             ),
         ]
     )
+    if fieldmap_is_4d:
+        workflow.connect(
+            [
+                (
+                    inputnode,
+                    fmap_b0_extractor,
+                    [
+                        ("fmap_file", "inputnode.dwi_file"),
+                    ],
+                ),
+                (
+                    fmap_b0_extractor,
+                    listify_b0,
+                    [
+                        ("outputnode.dwi_reference", "in2"),
+                    ],
+                ),
+            ]
+        )
+    else:
+        workflow.connect(
+            [
+                (
+                    inputnode,
+                    listify_b0,
+                    [
+                        ("fmap_file", "in2"),
+                    ],
+                )
+            ]
+        )
 
     query_pe_dir = pe.Node(
         niu.Function(

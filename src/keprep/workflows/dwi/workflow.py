@@ -21,6 +21,26 @@ from keprep.workflows.dwi.stages.post_eddy import init_post_eddy_wf
 from keprep.workflows.dwi.utils import calculate_denoise_window, read_field_from_json
 
 
+def fieldmap_is_4d(fieldmap_file: str | Path) -> bool:
+    """
+    Check if the fieldmap is 4D.
+
+    Parameters
+    ----------
+    fieldmap_file : Union[str,Path]
+        path to fieldmap file
+
+    Returns
+    -------
+    bool
+        True if the fieldmap is 4D
+    """
+    from nibabel import load
+
+    fieldmap_img = load(str(fieldmap_file))
+    return fieldmap_img.ndim == 4
+
+
 def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
     """
     Build the dwi preprocessing workflow.
@@ -76,6 +96,10 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
     inputnode.inputs.fmap_bvec = Path(layout.get_bvec(fieldmap))
     inputnode.inputs.fmap_bval = Path(layout.get_bval(fieldmap))
     inputnode.inputs.fmap_json = Path(layout.get_nearest(fieldmap, extension="json"))
+
+    # check if fieldmap is 4D
+    fmap_is_4d = fieldmap_is_4d(fieldmap)
+
     outputnode = pe.Node(  # noqa: F841
         niu.IdentityInterface(
             fields=["dwi_preproc", "dwi_reference", "dwi_mask"],
@@ -212,7 +236,7 @@ def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
         ]
     )
 
-    eddy_wf = init_eddy_wf()
+    eddy_wf = init_eddy_wf(fieldmap_is_4d=fmap_is_4d)
     workflow.connect(
         [
             (inputnode, eddy_wf, [("dwi_json", "inputnode.dwi_json")]),
