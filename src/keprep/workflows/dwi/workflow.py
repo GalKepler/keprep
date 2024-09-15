@@ -38,7 +38,7 @@ def fieldmap_is_4d(fieldmap_file: str | Path) -> bool:
     from nibabel import load
 
     fieldmap_img = load(str(fieldmap_file))
-    return fieldmap_img.ndim == 4
+    return fieldmap_img.ndim == 4  # type: ignore[attr-defined]
 
 
 def init_dwi_preproc_wf(dwi_file: str | Path, subject_data: dict):
