@@ -72,7 +72,6 @@ def init_keprep_wf():
                 minimum_fs_version="7.0.0",
             ),
             name=f"fsdir_run_{config.execution.run_uuid.replace('-', '_')}",
-            run_without_submitting=True,
         )
         if config.execution.fs_subjects_dir is not None:
             fsdir.inputs.subjects_dir = str(config.execution.fs_subjects_dir.absolute())  # type: ignore[unreachable] # noqa: E501
@@ -239,13 +238,11 @@ def init_single_subject_wf(subject_id: str):
             nstd_spaces=spaces.get_spaces(standard=False),  # type: ignore[attr-defined] # noqa: E501
         ),
         name="summary",
-        run_without_submitting=True,
     )
 
     about = pe.Node(
         AboutSummary(version=config.environment.version, command=" ".join(sys.argv)),
         name="about",
-        run_without_submitting=True,
     )
 
     ds_report_summary = pe.Node(
@@ -253,9 +250,9 @@ def init_single_subject_wf(subject_id: str):
             base_directory=str(config.execution.keprep_dir),  # type: ignore[attr-defined] # noqa: E501
             desc="summary",
             datatype="figures",
+            copy=True,
         ),
         name="ds_report_summary",
-        run_without_submitting=True,
     )
 
     ds_report_about = pe.Node(
@@ -263,9 +260,9 @@ def init_single_subject_wf(subject_id: str):
             base_directory=str(config.execution.keprep_dir),  # type: ignore[attr-defined] # noqa: E501
             desc="about",
             datatype="figures",
+            copy=True,
         ),
         name="ds_report_about",
-        run_without_submitting=True,
     )
 
     # Preprocessing of T1w (includes registration to MNI)

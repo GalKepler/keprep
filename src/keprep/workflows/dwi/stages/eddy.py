@@ -10,7 +10,9 @@ from keprep.workflows.dwi.stages.extract_b0 import init_extract_b0_wf
 from keprep.workflows.dwi.utils import read_field_from_json
 
 
-def init_eddy_wf(name: str = "eddy_wf", fieldmap_is_4d: bool = True) -> pe.Workflow:
+def init_eddy_wf(
+    name: str = "eddy_wf", fieldmap_is_4d: bool = True, fmap_is_dwi: bool = True
+) -> pe.Workflow:
     """
     Build the SDC and motion correction workflow.
 

@@ -67,7 +67,6 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
             function=_eddy_qc_dds,
         ),
         name="ds_eddy_qc",
-        run_without_submitting=True,
     )
 
     ds_eddy_qc_plot = pe.Node(
@@ -77,9 +76,9 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
             suffix="dwi",
             datatype="figures",
             dismiss_entities=["direction"],
+            copy=True,
         ),
         name="ds_eddy_qc_plot",
-        run_without_submitting=True,
     )
 
     ds_sdc_report = pe.Node(
@@ -89,9 +88,9 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
             suffix="dwi",
             datatype="figures",
             dismiss_entities=["direction"],
+            copy=True,
         ),
         name="ds_report_sdc",
-        run_without_submitting=True,
     )
     ds_coreg_report = pe.Node(
         DerivativesDataSink(
@@ -100,9 +99,9 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
             suffix="dwi",
             datatype="figures",
             dismiss_entities=["direction"],
+            copy=True,
         ),
         name="ds_coreg_report",
-        run_without_submitting=True,
     )
 
     ds_dwi_preproc = pe.Node(
@@ -112,9 +111,9 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
             compress=True,
             **DWI_PREPROC_BASE_ENTITIES,
             dismiss_entities=["direction"],
+            copy=True,
         ),
         name="ds_dwi_preproc",
-        run_without_submitting=True,
     )
 
     listify_gradients = pe.Node(
@@ -128,10 +127,10 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
             suffix="dwi",
             **DWI_PREPROC_BASE_ENTITIES,
             dismiss_entities=["direction"],
+            copy=True,
         ),
         iterfield=["in_file"],
         name="ds_dwi_gradients",
-        run_without_submitting=True,
     )
 
     ds_dwiref = pe.Node(
@@ -141,9 +140,9 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
             compress=True,
             **DWI_PREPROC_BASE_ENTITIES,
             dismiss_entities=["direction"],
+            copy=True,
         ),
         name="ds_dwiref",
-        run_without_submitting=True,
     )
 
     ds_dwiref_json = pe.Node(
@@ -152,9 +151,9 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
             suffix="dwiref",
             **DWI_PREPROC_BASE_ENTITIES,
             dismiss_entities=["direction"],
+            copy=True,
         ),
         name="ds_dwiref_json",
-        run_without_submitting=True,
     )
 
     ds_dwi_mask = pe.Node(
@@ -165,9 +164,9 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
             space="dwi",
             compress=True,
             dismiss_entities=["direction"],
+            copy=True,
         ),
         name="ds_dwi_mask",
-        run_without_submitting=True,
     )
 
     ds_dwi2t1w_aff = pe.Node(
@@ -181,9 +180,9 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
                 "extension": "txt",
             },
             dismiss_entities=["direction"],
+            copy=True,
         ),
         name="ds_dwi2t1w_aff",
-        run_without_submitting=True,
     )
 
     ds_t1w2dwi_aff = pe.Node(
@@ -197,9 +196,9 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
                 "extension": "txt",
             },
             dismiss_entities=["direction"],
+            copy=True,
         ),
         name="ds_t1w2dwi_aff",
-        run_without_submitting=True,
     )
 
     workflow.connect(
